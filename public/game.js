@@ -1,68 +1,78 @@
+import * as settings from "./settings.js";
+const { NOTE_SPEED, HIT_LINE, LANE_WIDTH, NUM_LANES, CENTER_LANE } = settings;
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
 
 let notes = [];
 let score = 0;
 let lastSpawn = 0;
-const noteSpeed = 4;
-const hitLine = 500; // Y position where you should hit notes
+
 
 function spawnNote() {
-    notes.push({ x: 400, y: 0 }); // center lane
+  // The nth element is the x coordinate of the centre of the nth lane
+  const lanes = []; 
+  for (let i = 0; i < NUM_LANES; i++) {
+    lanes.push(CENTER_LANE + (i - (NUM_LANES-1)/2) * LANE_WIDTH);
+  }
+  const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+  notes.push({ x: randomLane, y: 0 });
 }
 
 function update() {
-    const now = Date.now();
-    if (now - lastSpawn > 1000) { // spawn every 1 second
-        spawnNote();
-        lastSpawn = now;
-    }
+  const now = Date.now();
+  if (now - lastSpawn > 100) {
 
-    notes.forEach(note => note.y += noteSpeed);
+    spawnNote();
+    lastSpawn = now;
+  }
 
-    // Remove notes that pass the screen
-    notes = notes.filter(note => note.y < canvas.height + 50);
+  notes.forEach((note) => (note.y += NOTE_SPEED));
+
+  // Notes that fall too far get deleted
+  notes = notes.filter((note) => note.y < canvas.height + 50);
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw hit line
-    ctx.strokeStyle = "yellow";
+  // Draw hit line
+  ctx.strokeStyle = "yellow";
+  ctx.beginPath();
+  ctx.moveTo(0, HIT_LINE);
+  ctx.lineTo(canvas.width, HIT_LINE);
+  ctx.stroke();
+
+  // Draw notes
+  ctx.fillStyle = "cyan";
+  notes.forEach((note) => {
     ctx.beginPath();
-    ctx.moveTo(0, hitLine);
-    ctx.lineTo(canvas.width, hitLine);
-    ctx.stroke();
+    ctx.arc(note.x, note.y, 20, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
-    // Draw notes
-    ctx.fillStyle = "cyan";
-    notes.forEach(note => {
-        ctx.beginPath();
-        ctx.arc(note.x, note.y, 20, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Draw score
-    ctx.fillStyle = "white";
-    ctx.fillText(`Score: ${score}`, 20, 30);
+  // Draw score
+  ctx.fillStyle = "white";
+  ctx.fillText(`Score: ${score}`, 20, 30);
 }
 
 function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
 }
 
-// Handle keypress
 document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") { // hit with spacebar
-        notes.forEach((note, index) => {
-            if (Math.abs(note.y - hitLine) < 20) {
-                score += 100;
-                notes.splice(index, 1); // remove hit note
-            }
-        });
-    }
+  if (e.code === "Space") {
+    // hit with spacebar
+    notes.forEach((note, index) => {
+      if (Math.abs(note.y - HIT_LINE) < 20) {
+        score += 100;
+        notes.splice(index, 1); // remove hit note
+      }
+    });
+  }
 });
 
 gameLoop();
