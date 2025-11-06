@@ -1,32 +1,25 @@
-export class Renderer {
-    constructor(canvas, ctx) {
-        this.canvas = canvas;
-        this.ctx = ctx;
-    }
+export function clear(ctx, canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
-    clear() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+export function drawHitLine(ctx, canvas, color, y) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+}
 
-    drawHitLine(color, y) {
-        this.ctx.strokeStyle = color;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, y);
-        this.ctx.lineTo(this.canvas.width, y);
-        this.ctx.stroke();
-    }
+export function drawNotes(ctx, notes, color, radius) {
+    ctx.fillStyle = color;
+    notes.forEach(note => {
+        ctx.beginPath();
+        ctx.arc(note.x, note.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
 
-    drawNotes(notes, color, radius) {
-        this.ctx.fillStyle = color;
-        notes.forEach(note => {
-            this.ctx.beginPath();
-            this.ctx.arc(note.x, note.y, radius, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-    }
-
-    drawScore(score, color) {
-        this.ctx.fillStyle = color;
-        this.ctx.fillText(`Score: ${score}`, 20, 30);
-    }
+export function drawScore(ctx, score, color) {
+    ctx.fillStyle = color;
+    ctx.fillText(`Score: ${score}`, 20, 30);
 }

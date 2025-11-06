@@ -1,52 +1,55 @@
-import { GAME_SETTINGS, COLORS } from './constants.js';
-import { NoteManager } from './noteManager.js';
-import { Renderer } from './renderer.js';
-import { InputHandler } from './inputHandler.js';
+import { 
+    NOTE_SPEED, 
+    HIT_LINE, 
+    SPAWN_INTERVAL, 
+    NOTE_RADIUS,
+    SCORE_PER_HIT, 
+    COLORS 
+} from './constants.js';
+import { spawnNote, updateNotes } from './noteManager.js';
+import { clear, drawHitLine, drawNotes, drawScore } from './renderer.js';
 
-class Game {
-    constructor() {
-        this.canvas = document.getElementById("gameCanvas");
-        this.ctx = this.canvas.getContext("2d");
-        this.score = 0;
-        
-        this.noteManager = new NoteManager();
-        this.renderer = new Renderer(this.canvas, this.ctx);
-        this.inputHandler = new InputHandler(this.noteManager, () => this.onHit());
-        
-        this.gameLoop = this.gameLoop.bind(this);
-    }
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-    onHit() {
-        this.score += GAME_SETTINGS.SCORE_PER_HIT;
-    }
+let gameState = {
+    notes: [],
+    score: 0,
+    lastSpawn: 0
+};
 
-    update() {
-        const now = Date.now();
-        if (now - this.noteManager.lastSpawn > GAME_SETTINGS.SPAWN_INTERVAL) {
-            this.noteManager.spawnNote();
-            this.noteManager.lastSpawn = now;
-        }
-
-        this.noteManager.updateNotes(GAME_SETTINGS.NOTE_SPEED, this.canvas.height);
-    }
-
-    draw() {
-        this.renderer.clear();
-        this.renderer.drawHitLine(COLORS.HIT_LINE, GAME_SETTINGS.HIT_LINE);
-        this.renderer.drawNotes(this.noteManager.notes, COLORS.NOTE, GAME_SETTINGS.NOTE_RADIUS);
-        this.renderer.drawScore(this.score, COLORS.SCORE);
-    }
-
-    gameLoop() {
-        this.update();
-        this.draw();
-        requestAnimationFrame(this.gameLoop);
-    }
-
-    start() {
-        this.gameLoop();
-    }
+export function getGameState() {
+    return gameState;
 }
 
-const game = new Game();
-game.start();
+export function updateGameState(newNotes) {
+    gameState.notes = newNotes;
+    gameState.score += SCORE_PER_HIT;
+}
+
+function update() {
+    const now = Date.now();
+    if (now - gameState.lastSpawn > SPAWN_INTERVAL) {
+        gameState.notes = spawnNote(gameState.notes);
+        gameState.lastSpawn = now;
+    }
+
+    gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
+}
+
+function draw() {
+    clear(ctx, canvas);
+    drawHitLine(ctx, canvas, COLORS.HIT_LINE, HIT_LINE);
+    drawNotes(ctx, gameState.notes, COLORS.NOTE, NOTE_RADIUS);
+    drawScore(ctx, gameState.score, COLORS.SCORE);
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+export function startGame() {
+    gameLoop();
+}

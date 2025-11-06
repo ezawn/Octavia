@@ -1,22 +1,13 @@
-import { GAME_SETTINGS } from './constants.js';
+import { HIT_LINE, HIT_THRESHOLD } from './constants.js';
+import { checkHit } from './noteManager.js';
+import { getGameState, updateGameState } from './game.js';
 
-export class InputHandler {
-    constructor(noteManager, onHit) {
-        this.noteManager = noteManager;
-        this.onHit = onHit;
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        document.addEventListener("keydown", (e) => this.handleKeyPress(e));
-    }
-
-    handleKeyPress(e) {
-        if (e.code === "Space") {
-            const hit = this.noteManager.checkHit(
-                GAME_SETTINGS.HIT_LINE,
-                GAME_SETTINGS.HIT_THRESHOLD
-            );
+export function handleKeyPress(e) {
+    if (e.code === "Space") {
+        const { notes } = getGameState();
+        const result = checkHit(notes, HIT_LINE, HIT_THRESHOLD);
+        if (result.hit) {
+            updateGameState(result.notes);
             if (hit) {
                 this.onHit();
             }
