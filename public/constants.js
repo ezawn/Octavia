@@ -5,7 +5,7 @@ export const NOTE_RADIUS = 20;
 export const HIT_THRESHOLD = 20;
 export const SCORE_PER_HIT = 100;
 
-export const COLORS = {
+export const COLOURS = {
     HIT_LINE: "yellow",
     NOTE: "cyan",
     SCORE: "white"

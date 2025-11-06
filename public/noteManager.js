@@ -1,20 +1,24 @@
 export class Note {
+    // Creates a new note at position (x,y)
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
 
+    // Moves the note down by noteSpeed pixels
     update(noteSpeed) {
         this.y += noteSpeed;
         return this;
     }
 
+    // Checks if note has moved below the canvas
     isOffScreen(canvasHeight) {
-        return this.y >= canvasHeight + 50;
+        return this.y >= canvasHeight + 50;  // 50px buffer
     }
 
+    // Checks if note is within hitting range
     isInHitRange(hitLine, hitThreshold) {
-        return Math.abs(this.y - hitLine) < hitThreshold;
+        return Math.abs(this.y - hitLine) < hitThreshold;  // Checks distance to hit line
     }
 }
 
