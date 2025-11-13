@@ -3,11 +3,13 @@ import {
     HIT_LINE, 
     SPAWN_INTERVAL, 
     NOTE_RADIUS,
-    SCORE_PER_HIT, 
-    COLORS 
+    SCORE_PER_HIT,
+    MAX_HEALTH,
+    HEALTH_DAMAGE_PER_MISS,
+    COLOURS
 } from './constants.js';
 import { spawnNote, updateNotes } from './noteManager.js';
-import { clear, drawHitLine, drawNotes, drawScore } from './renderer.js';
+import { clear, drawHitLine, drawNotes, drawScore, drawHealth } from './renderer.js';
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -15,7 +17,9 @@ const ctx = canvas.getContext("2d");
 let gameState = {
     notes: [],
     score: 0,
-    lastSpawn: 0
+    health: MAX_HEALTH,
+    lastSpawn: 0,
+    gameOver: false
 };
 
 export function getGameState() {
@@ -27,6 +31,14 @@ export function updateGameState(newNotes) {
     gameState.score += SCORE_PER_HIT;
 }
 
+export function damageHealth(damage) {
+    gameState.health -= damage;
+    if (gameState.health <= 0) {
+        gameState.health = 0;
+        gameState.gameOver = true;
+    }
+}
+
 function update() {
     const now = Date.now();
     if (now - gameState.lastSpawn > SPAWN_INTERVAL) {
@@ -34,14 +46,27 @@ function update() {
         gameState.lastSpawn = now;
     }
 
+    const previousNotes = gameState.notes;
     gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
+    
+    // Check for missed notes
+    const missedNotes = previousNotes.filter(note => {
+        const isPastHitLine = note.y > HIT_LINE;
+        const stillExists = gameState.notes.some(n => n === note);
+        return isPastHitLine && !stillExists;
+    });
+    
+    if (missedNotes.length > 0) {
+        damageHealth(HEALTH_DAMAGE_PER_MISS * missedNotes.length);
+    }
 }
 
 function draw() {
     clear(ctx, canvas);
-    drawHitLine(ctx, canvas, COLORS.HIT_LINE, HIT_LINE);
-    drawNotes(ctx, gameState.notes, COLORS.NOTE, NOTE_RADIUS);
-    drawScore(ctx, gameState.score, COLORS.SCORE);
+    drawHitLine(ctx, canvas, COLOURS.HIT_LINE, HIT_LINE);
+    drawNotes(ctx, gameState.notes, COLOURS.NOTE, NOTE_RADIUS);
+    drawScore(ctx, gameState.score, COLOURS.SCORE);
+    drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH);
 }
 
 function gameLoop() {
@@ -53,3 +78,5 @@ function gameLoop() {
 export function startGame() {
     gameLoop();
 }
+
+

@@ -13,7 +13,7 @@ export class Note {
 
     // Checks if note has moved below the canvas
     isOffScreen(canvasHeight) {
-        return this.y >= canvasHeight + 50;  // 50px buffer
+        return this.y >= canvasHeight+50;  // 50px buffer
     }
 
     // Checks if note is within hitting range
@@ -23,7 +23,7 @@ export class Note {
 }
 
 export function spawnNote(notes) {
-    return [...notes, new Note(400, 0)]; // center lane
+    return [...notes, new Note(400, 0)]; // center lane, y=0
 }
 
 export function updateNotes(notes, noteSpeed, canvasHeight) {
