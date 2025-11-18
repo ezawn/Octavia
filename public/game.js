@@ -1,21 +1,6 @@
-import {
-  NOTE_SPEED,
-  HIT_LINE,
-  SPAWN_INTERVAL,
-  NOTE_RADIUS,
-  SCORE_PER_HIT,
-  MAX_HEALTH,
-  HEALTH_DAMAGE_PER_MISS,
-  COLOURS,
-} from "./constants.js";
+import {  NOTE_SPEED,  HIT_LINE,  SPAWN_INTERVAL,  NOTE_RADIUS,  SCORE_PER_HIT,  MAX_HEALTH,  HEALTH_DAMAGE_PER_MISS,  COLOURS,} from "./constants.js";
 import { spawnNote, updateNotes } from "./noteManager.js";
-import {
-  clear,
-  drawHitLine,
-  drawNotes,
-  drawScore,
-  drawHealth,
-} from "./renderer.js";
+import {  clear,  drawHitLine,  drawNotes,  drawScore,  drawHealth,} from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -31,7 +16,7 @@ let gameState = {
 export function getGameState() {
   return gameState;
 }
-
+//Increases  score and pushes it to the game state object
 export function updateGameState(newNotes) {
   gameState.notes = newNotes;
   gameState.score += SCORE_PER_HIT;
@@ -44,7 +29,10 @@ export function damageHealth(damage) {
     gameState.gameOver = true;
   }
 }
-
+/* Update is called every frame
+Spawn note if sufficient time has elapsed
+Returns True if it is past the hit line and it doesn't exist
+Reduces health by DAMAGE_PER_MISS * length of missedNotes*/
 function update() {
   const now = Date.now();
   if (now - gameState.lastSpawn > SPAWN_INTERVAL) {
@@ -55,7 +43,7 @@ function update() {
   const previousNotes = gameState.notes;
   gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
 
-  // Check for missed notes
+
   const missedNotes = previousNotes.filter((note) => {
     const isPastHitLine = note.y > HIT_LINE;
     const stillExists = gameState.notes.some((n) => n === note);
@@ -67,6 +55,7 @@ function update() {
   }
 }
 
+
 function draw() {
   clear(ctx, canvas);
   drawHitLine(ctx, canvas, COLOURS.HIT_LINE, HIT_LINE);
@@ -75,11 +64,13 @@ function draw() {
   drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH);
 }
 
+
 function gameLoop() {
   update();
   draw();
   requestAnimationFrame(gameLoop);
 }
+
 
 export function startGame() {
   gameLoop();

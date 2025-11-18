@@ -1,29 +1,30 @@
 export class Note {
-  // Creates a new note at position (x,y)
-  constructor(x, y) {
+  constructor(x, y, lane) {
     this.x = x;
     this.y = y;
+    this.lane = lane;
   }
 
-  // Moves the note down by noteSpeed pixels
   update(noteSpeed) {
     this.y += noteSpeed;
     return this;
   }
 
-  // Checks if note has moved below the canvas
   isOffScreen(canvasHeight) {
-    return this.y >= canvasHeight + 50; // 50px buffer
+    return this.y >= canvasHeight + 50;
   }
 
-  // Checks if note is within hitting range
   isInHitRange(hitLine, hitThreshold) {
-    return Math.abs(this.y - hitLine) < hitThreshold; // Checks distance to hit line
+    return Math.abs(this.y - hitLine) < hitThreshold;
   }
 }
 
+import { LANES } from './constants.js';
+
 export function spawnNote(notes) {
-  return [...notes, new Note(400, 0)]; // center lane, y=0
+  const randomLane = LANES[Math.floor(Math.random() * LANES.length)];
+  const lane = LANES.indexOf(randomLane);
+  return [...notes, new Note(randomLane, 0, lane)];
 }
 
 export function updateNotes(notes, noteSpeed, canvasHeight) {
@@ -32,13 +33,12 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
     .filter((note) => !note.isOffScreen(canvasHeight));
 }
 
-export function checkHit(notes, hitLine, hitThreshold) {
-  const hitIndex = notes.findIndex((note) =>
-    note.isInHitRange(hitLine, hitThreshold),
+export function checkHit(notes, hitLine, hitThreshold, laneX) {
+  const hitIndex = notes.findIndex(note => 
+    note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
   );
   if (hitIndex === -1) return { hit: false, notes };
 
-  const newNotes = [...notes];
-  newNotes.splice(hitIndex, 1);
+  const newNotes = notes.filter((_, i) => i !== hitIndex);
   return { hit: true, notes: newNotes };
 }

@@ -6,8 +6,7 @@ export const HIT_THRESHOLD = 20;
 export const SCORE_PER_HIT = 100;
 export const MAX_HEALTH = 100;
 export const HEALTH_DAMAGE_PER_MISS = 10;
-
-
+export const LANES = [150, 300, 500, 650];
 export const COLOURS = {
     HIT_LINE: "yellow",
     NOTE: "cyan",
