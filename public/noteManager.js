@@ -29,8 +29,8 @@ export function spawnNote(notes) {
 
 export function updateNotes(notes, noteSpeed, canvasHeight) {
   return notes
-    .map((note) => note.update(noteSpeed))
-    .filter((note) => !note.isOffScreen(canvasHeight));
+    .map(note => note.update(noteSpeed))
+    .filter(note => !note.isOffScreen(canvasHeight));
 }
 
 export function checkHit(notes, hitLine, hitThreshold, laneX) {

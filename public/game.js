@@ -1,6 +1,6 @@
-import {  NOTE_SPEED,  HIT_LINE,  SPAWN_INTERVAL,  NOTE_RADIUS,  SCORE_PER_HIT,  MAX_HEALTH,  HEALTH_DAMAGE_PER_MISS,  COLOURS,} from "./constants.js";
+import { NOTE_SPEED, HIT_LINE, SPAWN_INTERVAL, NOTE_RADIUS, SCORE_PER_HIT, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
 import { spawnNote, updateNotes } from "./noteManager.js";
-import {  clear,  drawLanes,  drawHitLine,  drawNotes,  drawScore,  drawHealth,  drawGameOver,} from "./renderer.js";
+import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawGameOver } from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -12,11 +12,11 @@ let gameState = {
   lastSpawn: 0,
   gameOver: false,
 };
-window.gameState = gameState;
+
 export function getGameState() {
   return gameState;
 }
-//Increases  score and pushes it to the game state object
+
 export function updateGameState(newNotes) {
   gameState.notes = newNotes;
   gameState.score += SCORE_PER_HIT;
@@ -29,10 +29,7 @@ export function damageHealth(damage) {
     gameState.gameOver = true;
   }
 }
-/* Update is called every frame
-Spawn note if sufficient time has elapsed
-Returns True if it is past the hit line and it doesn't exist
-Reduces health by DAMAGE_PER_MISS * length of missedNotes*/
+
 function update() {
   const now = Date.now();
   if (now - gameState.lastSpawn > SPAWN_INTERVAL) {
@@ -43,10 +40,9 @@ function update() {
   const previousNotes = gameState.notes;
   gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
 
-
-  const missedNotes = previousNotes.filter((note) => {
+  const missedNotes = previousNotes.filter(note => {
     const isPastHitLine = note.y > HIT_LINE;
-    const stillExists = gameState.notes.some((n) => n === note);
+    const stillExists = gameState.notes.some(n => n === note);
     return isPastHitLine && !stillExists;
   });
 
@@ -54,7 +50,6 @@ function update() {
     damageHealth(HEALTH_DAMAGE_PER_MISS * missedNotes.length);
   }
 }
-
 
 function draw() {
   clear(ctx, canvas);
@@ -68,14 +63,16 @@ function draw() {
     drawGameOver(ctx, canvas, gameState.score);
   }
 }
-
-
+function clearNotes(gameState) {
+  if (gameState.gameOver) 
+  gameState.notes = [];
+}
 function gameLoop() {
   update();
   draw();
   requestAnimationFrame(gameLoop);
+  clearNotes(gameState);
 }
-
 
 export function startGame() {
   gameLoop();
