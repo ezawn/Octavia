@@ -74,4 +74,9 @@ export function drawGameOver(ctx, canvas, score) {
     ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 50);
     ctx.font = '32px Arial';
     ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+    
+    // Back button
+    ctx.font = '18px Arial';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('Press ESC to return to menu', canvas.width / 2, canvas.height / 2 + 80);
 }

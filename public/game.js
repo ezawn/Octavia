@@ -1,5 +1,5 @@
-import { NOTE_SPEED, HIT_LINE, SPAWN_INTERVAL, NOTE_RADIUS, SCORE_PER_HIT, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
-import { spawnNote, updateNotes } from "./noteManager.js";
+import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, SCORE_PER_HIT, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
+import { spawnNote, updateNotes, loadChart, resetChart } from "./noteManager.js";
 import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawGameOver } from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
@@ -13,9 +13,12 @@ let gameState = {
   gameOver: false,
 };
 
+let gameLoopRunning = false;
+
 export function getGameState() {
   return gameState;
 }
+
 
 export function updateGameState(newNotes) {
   gameState.notes = newNotes;
@@ -31,11 +34,8 @@ export function damageHealth(damage) {
 }
 
 function update() {
-  const now = Date.now();
-  if (now - gameState.lastSpawn > SPAWN_INTERVAL) {
-    gameState.notes = spawnNote(gameState.notes);
-    gameState.lastSpawn = now;
-  }
+  // Spawn note based on chart timing
+  gameState.notes = spawnNote(gameState.notes);
 
   const previousNotes = gameState.notes;
   gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
@@ -63,17 +63,35 @@ function draw() {
     drawGameOver(ctx, canvas, gameState.score);
   }
 }
+//
 function clearNotes(gameState) {
   if (gameState.gameOver) 
   gameState.notes = [];
 }
 function gameLoop() {
+  if (!gameLoopRunning) return;
+  
   update();
   draw();
   requestAnimationFrame(gameLoop);
   clearNotes(gameState);
 }
-
-export function startGame() {
+// self explanatory
+export function resetGameState() {
+  gameState = {
+    notes: [],
+    score: 0,
+    health: MAX_HEALTH,
+    lastSpawn: 0,
+    gameOver: false,
+  };
+  gameLoopRunning = false;
+}
+// start the game with the specified chart path
+export async function startGame(chartPath) {
+  resetGameState();
+  await loadChart(chartPath);
+  resetChart();
+  gameLoopRunning = true;
   gameLoop();
 }

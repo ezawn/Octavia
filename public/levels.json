@@ -1,0 +1,22 @@
+{
+  "levels": [
+    {
+      "id": "beginner",
+      "name": "Beginner",
+      "description": "Easy chart",
+      "chart": "chart-beginner.json"
+    },
+    {
+      "id": "intermediate",
+      "name": "Intermediate",
+      "description": "Standard difficulty",
+      "chart": "chart-intermediate.json"
+    },
+    {
+      "id": "advanced",
+      "name": "Advanced",
+      "description": "Challenge yourself",
+      "chart": "chart-advanced.json"
+    }
+  ]
+}
