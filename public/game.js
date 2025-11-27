@@ -1,6 +1,6 @@
 import {  NOTE_SPEED,  HIT_LINE,  SPAWN_INTERVAL,  NOTE_RADIUS,  SCORE_PER_HIT,  MAX_HEALTH,  HEALTH_DAMAGE_PER_MISS,  COLOURS,} from "./constants.js";
 import { spawnNote, updateNotes } from "./noteManager.js";
-import {  clear,  drawHitLine,  drawNotes,  drawScore,  drawHealth,} from "./renderer.js";
+import {  clear,  drawLanes,  drawHitLine,  drawNotes,  drawScore,  drawHealth,  drawGameOver,} from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -12,7 +12,7 @@ let gameState = {
   lastSpawn: 0,
   gameOver: false,
 };
-
+window.gameState = gameState;
 export function getGameState() {
   return gameState;
 }
@@ -58,10 +58,15 @@ function update() {
 
 function draw() {
   clear(ctx, canvas);
+  drawLanes(ctx, canvas, HIT_LINE);
   drawHitLine(ctx, canvas, COLOURS.HIT_LINE, HIT_LINE);
   drawNotes(ctx, gameState.notes, COLOURS.NOTE, NOTE_RADIUS);
-  drawScore(ctx, gameState.score, COLOURS.SCORE);
-  drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH);
+  drawScore(ctx, gameState.score, COLOURS.SCORE, canvas);
+  drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH, canvas);
+  
+  if (gameState.gameOver) {
+    drawGameOver(ctx, canvas, gameState.score);
+  }
 }
 
 
