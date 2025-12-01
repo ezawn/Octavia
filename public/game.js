@@ -19,6 +19,10 @@ export function getGameState() {
   return gameState;
 }
 
+export function isGameOver() {
+  return gameState.gameOver;
+}
+
 
 export function updateGameState(newNotes) {
   gameState.notes = newNotes;

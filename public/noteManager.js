@@ -1,12 +1,16 @@
+import { LANES } from './constants.js';
+
 export class Note {
   constructor(x, y, lane) {
     this.x = x;
     this.y = y;
     this.lane = lane;
+    this.spawnTime = Date.now(); // Track when note was created
   }
 
-  update(noteSpeed) {
-    this.y += noteSpeed;
+  update(noteSpeed, currentTime) {
+    const timeSinceSpawn = currentTime - this.spawnTime;
+    this.y = timeSinceSpawn * noteSpeed; // Position = time * speed
     return this;
   }
 
@@ -18,8 +22,6 @@ export class Note {
     return Math.abs(this.y - hitLine) < hitThreshold;
   }
 }
-
-import { LANES } from './constants.js';
 
 let chartData = null;
 let nextNoteIndex = 0;
@@ -55,8 +57,9 @@ export function spawnNote(notes) {
 }
 
 export function updateNotes(notes, noteSpeed, canvasHeight) {
+  const currentTime = Date.now();
   return notes
-    .map(note => note.update(noteSpeed))
+    .map(note => note.update(noteSpeed, currentTime))
     .filter(note => !note.isOffScreen(canvasHeight));
 }
 
