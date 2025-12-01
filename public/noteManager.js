@@ -5,7 +5,7 @@ export class Note {
     this.x = x;
     this.y = y;
     this.lane = lane;
-    this.spawnTime = Date.now(); // Track when note was created
+    this.spawnTime = Date.now(); //Time at which the note is created
   }
 
   update(noteSpeed, currentTime) {
@@ -62,7 +62,8 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
     .map(note => note.update(noteSpeed, currentTime))
     .filter(note => !note.isOffScreen(canvasHeight));
 }
-
+/*Verifies if note was correctly hit
+If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately*/
 export function checkHit(notes, hitLine, hitThreshold, laneX) {
   const hitIndex = notes.findIndex(note => 
     note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
