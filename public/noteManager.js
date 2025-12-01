@@ -10,7 +10,7 @@ export class Note {
 
   update(noteSpeed, currentTime) {
     const timeSinceSpawn = currentTime - this.spawnTime;
-    this.y = timeSinceSpawn * noteSpeed; // Position = time * speed
+    this.y = timeSinceSpawn * noteSpeed; //Position = time * speed
     return this;
   }
 
