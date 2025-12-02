@@ -11,6 +11,7 @@ let gameState = {
   health: MAX_HEALTH,
   lastSpawn: 0,
   gameOver: false,
+  currentCombo: 0,
 };
 
 let gameLoopRunning = false;

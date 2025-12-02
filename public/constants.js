@@ -13,3 +13,10 @@ export const COLOURS = {
     SCORE: "white",
     HEALTH: "red"
 };
+export const JUDGEMENTS={
+    GREAT: 64,
+    GOOD: 97,
+    OK: 127,
+    MEH: 50,
+    MISS: 0
+}
