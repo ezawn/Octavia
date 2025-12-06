@@ -1,4 +1,4 @@
-import { LANES } from './constants.js';
+import { LANES, JUDGEMENTS } from './constants.js';
 
 export class Note {
   constructor(x, y, lane) {
@@ -20,6 +20,28 @@ export class Note {
 
   isInHitRange(hitLine, hitThreshold) {
     return Math.abs(this.y - hitLine) < hitThreshold;
+  }
+  
+  getTimingDifference(hitLine, noteSpeed) {
+    // Calculate how far off the hit was in milliseconds
+    const pixelDifference = Math.abs(this.y - hitLine);
+    const timingMs = pixelDifference / noteSpeed;
+    return timingMs;
+  }
+  
+  getJudgment(hitLine, noteSpeed) {
+    const timingDifference = this.getTimingDifference(hitLine, noteSpeed);
+    
+    if (timingDifference <= JUDGEMENTS.GREAT.threshold) {
+      return JUDGEMENTS.GREAT;
+    } else if (timingDifference <= JUDGEMENTS.GOOD.threshold) {
+      return JUDGEMENTS.GOOD;
+    } else if (timingDifference <= JUDGEMENTS.OK.threshold) {
+      return JUDGEMENTS.OK;
+    } else if (timingDifference <= JUDGEMENTS.MEH.threshold) {
+      return JUDGEMENTS.MEH;
+    }
+    return JUDGEMENTS.MISS;
   }
 }
 
@@ -63,13 +85,16 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
     .filter(note => !note.isOffScreen(canvasHeight));
 }
 /*Verifies if note was correctly hit
-If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately*/
-export function checkHit(notes, hitLine, hitThreshold, laneX) {
+If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately
+Judgment is returned based on the timing difference*/
+export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
   const hitIndex = notes.findIndex(note => 
     note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
   );
-  if (hitIndex === -1) return { hit: false, notes };
+  if (hitIndex === -1) return { hit: false, notes, judgment: null };
 
+  const hitNote = notes[hitIndex];
+  const judgment = hitNote.getJudgment(hitLine, noteSpeed);
   const newNotes = notes.filter((_, i) => i !== hitIndex);
-  return { hit: true, notes: newNotes };
+  return { hit: true, notes: newNotes, judgment };
 }

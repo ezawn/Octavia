@@ -64,6 +64,34 @@ export function drawHealth(ctx, health, maxHealth, colour, canvas) {
     ctx.fillText(`Health: ${health}/${maxHealth}`, 830, 60);
 }
 
+export function drawJudgment(ctx, canvas, judgment, displayTime) {
+    if (!judgment) return;
+    
+    const now = Date.now();
+    const elapsed = now - displayTime;
+    const displayDuration = 500; // Show judgment for 500ms
+    
+    if (elapsed > displayDuration) return;
+    
+    //Fade out effect
+    const opacity = Math.max(0, 1 - (elapsed / displayDuration));
+    
+    //Colour based on judgment
+    let judgmentColour = '#FFFFFF';
+    if (judgment.label === 'GREAT') judgmentColour = '#00FFFF';
+    else if (judgment.label === 'GOOD') judgmentColour = '#00FF00';
+    else if (judgment.label === 'OK') judgmentColour = '#FFFF00'; 
+    else if (judgment.label === 'MEH') judgmentColour = '#FF8800';
+    else if (judgment.label === 'MISS') judgmentColour = '#FF0000';
+    
+    ctx.fillStyle = judgmentColour;
+    ctx.globalAlpha = opacity;
+    ctx.font = 'bold 36px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(judgment.label, canvas.width / 2, canvas.height / 2);
+    ctx.globalAlpha = 1.0;
+}
+
 export function drawGameOver(ctx, canvas, score) {
     // Semi-transparent overlay
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';

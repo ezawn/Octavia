@@ -1,6 +1,6 @@
-import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, SCORE_PER_HIT, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
+import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
 import { spawnNote, updateNotes, loadChart, resetChart } from "./noteManager.js";
-import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawGameOver } from "./renderer.js";
+import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawGameOver, drawJudgment } from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -25,9 +25,13 @@ export function isGameOver() {
 }
 
 
-export function updateGameState(newNotes) {
+export function updateGameState(newNotes, judgment = null) {
   gameState.notes = newNotes;
-  gameState.score += SCORE_PER_HIT;
+  if (judgment) {
+    gameState.score += judgment.score;
+    gameState.lastJudgment = judgment;
+    gameState.judgmentDisplayTime = Date.now();
+  }
 }
 
 export function damageHealth(damage) {
@@ -63,6 +67,7 @@ function draw() {
   drawNotes(ctx, gameState.notes, COLOURS.NOTE, NOTE_RADIUS);
   drawScore(ctx, gameState.score, COLOURS.SCORE, canvas);
   drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH, canvas);
+  drawJudgment(ctx, canvas, gameState.lastJudgment, gameState.judgmentDisplayTime);
   
   if (gameState.gameOver) {
     drawGameOver(ctx, canvas, gameState.score);
@@ -81,7 +86,6 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
   clearNotes(gameState);
 }
-// self explanatory
 export function resetGameState() {
   gameState = {
     notes: [],
@@ -89,6 +93,9 @@ export function resetGameState() {
     health: MAX_HEALTH,
     lastSpawn: 0,
     gameOver: false,
+    currentCombo: 0,
+    lastJudgment: null,
+    judgmentDisplayTime: 0,
   };
   gameLoopRunning = false;
 }
