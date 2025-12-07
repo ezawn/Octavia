@@ -9,7 +9,9 @@ const KEY_TO_LANE = {
   KeyJ: 2,
   KeyK: 3,
 };
-
+/*Handles key press events for hitting notes in the game
+Maps key presses to lanes and checks for hits
+Updates game state based on hit results*/
 export function handleKeyPress(e) {
   if (!(e.code in KEY_TO_LANE)) return;
 
@@ -17,10 +19,10 @@ export function handleKeyPress(e) {
   const laneX = LANES[lane];
   const { notes } = getGameState();
   const result = checkHit(notes, HIT_LINE, HIT_THRESHOLD, laneX, NOTE_SPEED);
-
-  if (result.hit) {
+/*On hit, if the judgement is not a miss, update the game state with the new notes and judgement.
+If miss or hit when note is out of range, reduce health by 5.*/
+  if (result.hit && result.judgment !== JUDGEMENTS.MISS) {
     updateGameState(result.notes, result.judgment);
-    // Don't damage health on hit
   } else {
     damageHealth(5);
   }

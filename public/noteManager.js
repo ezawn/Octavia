@@ -60,7 +60,8 @@ export function resetChart() {
   nextNoteIndex = 0;
   gameStartTime = Date.now();
 }
-
+/*Spawns notes based on the chart data and the elapsed time since the game started
+Also updates the notes array with new notes when their spawn time is reached*/
 export function spawnNote(notes) {
   if (!chartData || nextNoteIndex >= chartData.notes.length) {
     return notes;
