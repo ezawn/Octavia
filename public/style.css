@@ -40,9 +40,6 @@ canvas {
     letter-spacing: 3px;
 }
 
-#menuContainer .lead {
-}
-
 .card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

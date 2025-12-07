@@ -1,4 +1,4 @@
-import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS, COMBO_MULTIPLIER, MAX_SCORE } from "./constants.js";
+import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS, MAX_SCORE } from "./constants.js";
 import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished, getChartNoteCount } from "./noteManager.js";
 import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawCombo, drawGameOver, drawJudgment, drawLevelComplete } from "./renderer.js";
 
@@ -76,7 +76,7 @@ export function damageHealth(damage) {
 export function calculateNoteScore(baseScore, currentCombo, maxCombo) {
   if (maxCombo === 0) return baseScore;
   const comboRatio = currentCombo / maxCombo;
-  return baseScore * (1 + comboRatio);//Return float, don't floor yet
+  return baseScore * (1 + comboRatio);//Return float, don't round - makes final score = 1,000,000 as final product
 }
 
 /*Calculates the maximum raw score achievable with perfect hits on all notes
