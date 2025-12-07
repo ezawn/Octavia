@@ -1,6 +1,6 @@
 import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS } from "./constants.js";
-import { spawnNote, updateNotes, loadChart, resetChart } from "./noteManager.js";
-import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawGameOver, drawJudgment } from "./renderer.js";
+import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished } from "./noteManager.js";
+import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawCombo, drawGameOver, drawJudgment, drawLevelComplete } from "./renderer.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -11,7 +11,9 @@ let gameState = {
   health: MAX_HEALTH,
   lastSpawn: 0,
   gameOver: false,
+  levelComplete: false,
   currentCombo: 0,
+  maxCombo: 0,
 };
 
 let gameLoopRunning = false;
@@ -24,10 +26,22 @@ export function isGameOver() {
   return gameState.gameOver;
 }
 
+export function isLevelComplete() {
+  return gameState.levelComplete;
+}
+
 
 export function updateGameState(newNotes, judgment = null) {
   gameState.notes = newNotes;
   if (judgment) {
+    if (judgment.label !== 'MISS') {
+      gameState.currentCombo += 1;
+    } else {
+      gameState.currentCombo = 0;
+    }
+    if (gameState.currentCombo > gameState.maxCombo) {
+      gameState.maxCombo = gameState.currentCombo;
+    }
     gameState.score += judgment.score;
     gameState.lastJudgment = judgment;
     gameState.judgmentDisplayTime = Date.now();
@@ -44,8 +58,10 @@ export function damageHealth(damage) {
 
 function update() {
   // Spawn note based on chart timing
+  const beforeSpawn = gameState.notes.length;
   gameState.notes = spawnNote(gameState.notes);
-
+  const afterSpawn = gameState.notes.length;
+  
   const previousNotes = gameState.notes;
   gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
 
@@ -57,6 +73,12 @@ function update() {
 
   if (missedNotes.length > 0) {
     damageHealth(HEALTH_DAMAGE_PER_MISS * missedNotes.length);
+    gameState.currentCombo = 0; // Reset combo on missed notes
+  }
+  
+  // Check if level is complete: chart finished spawning and no notes on screen
+  if (!gameState.levelComplete && isChartFinished() && gameState.notes.length === 0) {
+    gameState.levelComplete = true;
   }
 }
 
@@ -67,9 +89,12 @@ function draw() {
   drawNotes(ctx, gameState.notes, COLOURS.NOTE, NOTE_RADIUS);
   drawScore(ctx, gameState.score, COLOURS.SCORE, canvas);
   drawHealth(ctx, gameState.health, MAX_HEALTH, COLOURS.HEALTH, canvas);
+  drawCombo(ctx, gameState.currentCombo, COLOURS.NOTE, canvas);
   drawJudgment(ctx, canvas, gameState.lastJudgment, gameState.judgmentDisplayTime);
   
-  if (gameState.gameOver) {
+  if (gameState.levelComplete && !gameState.gameOver) {
+    drawLevelComplete(ctx, canvas, gameState.score);
+  } else if (gameState.gameOver) {
     drawGameOver(ctx, canvas, gameState.score);
   }
 }
@@ -93,6 +118,7 @@ export function resetGameState() {
     health: MAX_HEALTH,
     lastSpawn: 0,
     gameOver: false,
+    levelComplete: false,
     currentCombo: 0,
     lastJudgment: null,
     judgmentDisplayTime: 0,

@@ -17,6 +17,12 @@
       "name": "Advanced",
       "description": "Challenge yourself",
       "chart": "chart-advanced.json"
+    },
+    {
+      "id": "chords",
+      "name": "Chords",
+      "description": "Multi-lane simultaneous hits",
+      "chart": "chart-chords.json"
     }
   ]
 }

@@ -26,16 +26,27 @@ export function drawMenu(ctx, canvas) {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
   ctx.fillText('Select a Level', canvas.width / 2, 130);
 
-  // Draw level buttons
+  // Draw level buttons with scrolling
   const levelList = levels || [];
   const buttonWidth = 300;
   const buttonHeight = 80;
   const buttonSpacing = 120;
+  const maxVisibleButtons = 3;
+  const viewportHeight = buttonSpacing * maxVisibleButtons;
   const startY = 200;
+  
+  // Calculate scroll offset to keep selected level visible
+  const scrollOffset = Math.max(0, selectedLevelIndex - maxVisibleButtons + 1) * buttonSpacing;
 
+  // Draw only visible buttons
   levelList.forEach((level, index) => {
-    const y = startY + index * buttonSpacing;
+    const y = startY + index * buttonSpacing - scrollOffset;
     const x = canvas.width / 2 - buttonWidth / 2;
+    
+    // Only draw if button is within viewport
+    if (y + buttonHeight < startY || y > startY + viewportHeight) {
+      return;
+    }
 
     // Button background
     const isSelected = index === selectedLevelIndex;
@@ -63,6 +74,18 @@ export function drawMenu(ctx, canvas) {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.textAlign = 'center';
   ctx.fillText('Press UP/DOWN to select, ENTER to start', canvas.width / 2, canvas.height - 40);
+  
+  // Show scroll indicator if there are more levels
+  if (levelList.length > maxVisibleButtons) {
+    ctx.font = '12px Arial';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    if (selectedLevelIndex > 0) {
+      ctx.fillText('▲ More levels above', canvas.width / 2, startY - 10);
+    }
+    if (selectedLevelIndex < levelList.length - 1) {
+      ctx.fillText('▼ More levels below', canvas.width / 2, startY + viewportHeight + 20);
+    }
+  }
 }
 
 export function handleMenuKeyPress(e) {

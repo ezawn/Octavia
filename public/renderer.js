@@ -64,6 +64,15 @@ export function drawHealth(ctx, health, maxHealth, colour, canvas) {
     ctx.fillText(`Health: ${health}/${maxHealth}`, 830, 60);
 }
 
+export function drawCombo(ctx, combo, colour, canvas) {
+    if (combo === 0) return; // Don't display combo when it's 0
+    
+    ctx.fillStyle = colour;
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${combo} COMBO`, canvas.width - 20, 100);
+}
+
 export function drawJudgment(ctx, canvas, judgment, displayTime) {
     if (!judgment) return;
     
@@ -90,6 +99,41 @@ export function drawJudgment(ctx, canvas, judgment, displayTime) {
     ctx.textAlign = 'center';
     ctx.fillText(judgment.label, canvas.width / 2, canvas.height / 2);
     ctx.globalAlpha = 1.0;
+}
+
+export function drawLevelComplete(ctx, canvas, score) {
+    // Semi-transparent overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Title
+    ctx.fillStyle = '#00FF00';
+    ctx.font = 'bold 60px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('LEVEL COMPLETE!', canvas.width / 2, canvas.height / 2 - 80);
+    
+    // Score
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 40px Arial';
+    ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+    
+    // Rank based on score
+    let rank = 'F';
+    let rankColor = '#FF0000';
+    if (score >= 30000) { rank = 'S'; rankColor = '#FFD700'; }
+    else if (score >= 25000) { rank = 'A'; rankColor = '#00FF00'; }
+    else if (score >= 20000) { rank = 'B'; rankColor = '#00FFFF'; }
+    else if (score >= 15000) { rank = 'C'; rankColor = '#FFFF00'; }
+    else if (score >= 10000) { rank = 'D'; rankColor = '#FF8800'; }
+    
+    ctx.fillStyle = rankColor;
+    ctx.font = 'bold 80px Arial';
+    ctx.fillText(rank, canvas.width / 2, canvas.height / 2 + 120);
+    
+    // Instructions
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.font = '16px Arial';
+    ctx.fillText('Press ESC to return to menu', canvas.width / 2, canvas.height - 40);
 }
 
 export function drawGameOver(ctx, canvas, score) {

@@ -1,11 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Octavia</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octavia - Rhythm Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="950" height="600"></canvas>
+    <!-- Main Menu Container -->
+    <div id="menuContainer" class="min-vh-100 d-flex flex-column justify-content-center align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container text-center">
+            <h1 class="display-1 fw-bold text-white mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">OCTAVIA</h1>
+            <p class="lead text-white mb-5" style="font-size: 1.3rem;">A Rhythmic Journey Through Music</p>
+            
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-6">
+                    <div class="card bg-dark border-light" style="box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+                        <div class="card-body p-4">
+                            <p class="text-light mb-4">Test your rhythm and reflexes with Octavia. Hit the notes to the beat and climb the ranks!</p>
+                            <button class="btn btn-success btn-lg w-100" id="playBtn" style="font-size: 1.2rem; font-weight: bold;">
+                                ▶ PLAY
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center g-3">
+                <div class="col-md-3">
+                    <div class="card bg-dark text-light border-light">
+                        <div class="card-body">
+                            <h5 class="card-title">🎮 4 Lanes</h5>
+                            <p class="card-text small">Challenge yourself across multiple lanes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-dark text-light border-light">
+                        <div class="card-body">
+                            <h5 class="card-title">⭐ Ranking System</h5>
+                            <p class="card-text small">Earn S-F ranks based on performance</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-dark text-light border-light">
+                        <div class="card-body">
+                            <h5 class="card-title">📊 Score Tracking</h5>
+                            <p class="card-text small">See your performance stats</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-dark text-light border-light">
+                        <div class="card-body">
+                            <h5 class="card-title">🎵 Multiple Charts</h5>
+                            <p class="card-text small">Beginner to Expert difficulty</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Canvas (Hidden by default) -->
+    <div id="gameContainer" class="d-none">
+        <canvas id="gameCanvas" width="950" height="600"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="main.js" type="module"></script>
 </body>
 </html>

@@ -20,10 +20,11 @@ export function handleKeyPress(e) {
   const { notes } = getGameState();
   const result = checkHit(notes, HIT_LINE, HIT_THRESHOLD, laneX, NOTE_SPEED);
 /*On hit, if the judgement is not a miss, update the game state with the new notes and judgement.
-If miss or hit when note is out of range, reduce health by 5.*/
+If miss or hit when note is out of range, reduce health and reset combo.*/
   if (result.hit && result.judgment !== JUDGEMENTS.MISS) {
     updateGameState(result.notes, result.judgment);
   } else {
+    updateGameState(notes, JUDGEMENTS.MISS);
     damageHealth(5);
   }
 }   

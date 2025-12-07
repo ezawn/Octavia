@@ -5,7 +5,7 @@ export const NOTE_RADIUS = 20;
 export const HIT_THRESHOLD = 100;
 export const MAX_HEALTH = 100;
 export const HEALTH_DAMAGE_PER_MISS = 10;
-export const LANES = [150, 300, 500, 650];
+export const LANES = [150, 300, 450, 600];
 export const COLOURS = {
     HIT_LINE: "yellow",
     NOTE: "cyan",

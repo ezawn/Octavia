@@ -99,3 +99,7 @@ export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
   const newNotes = notes.filter((_, i) => i !== hitIndex);
   return { hit: true, notes: newNotes, judgment };
 }
+
+export function isChartFinished() {
+  return chartData && nextNoteIndex >= chartData.notes.length;
+}
