@@ -1,14 +1,14 @@
-import { handleKeyPress } from './inputHandler.js';
-import { startGame, isGameOver, isLevelComplete } from './game.js';
-import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection } from './menu.js';
+import { handleKeyPress } from "./inputHandler.js";
+import { startGame, isGameOver, isLevelComplete } from "./game.js";
+import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection } from "./menu.js";
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const menuContainer = document.getElementById('menuContainer');
-const gameContainer = document.getElementById('gameContainer');
-const playBtn = document.getElementById('playBtn');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const menuContainer = document.getElementById("menuContainer");
+const gameContainer = document.getElementById("gameContainer");
+const playBtn = document.getElementById("playBtn");
 
-let gameMode = 'bootstrap-menu'; // bootstrap-menu, canvas-menu, or game
+let gameMode = "bootstrap-menu";//bootstrap-menu, canvas-menu, or game
 let currentChartPath = null;
 let menuLoopRunning = false;
 
@@ -17,7 +17,7 @@ async function initializeGame() {
   resetLevelSelection();
 }
 
-// Canvas-based menu loop (used when coming from bootstrap menu)
+//Canvas-based menu loop (used when coming from bootstrap menu)
 function menuLoop() {
   if (!menuLoopRunning) return;
   
@@ -25,62 +25,62 @@ function menuLoop() {
   requestAnimationFrame(menuLoop);
 }
 
-// Show bootstrap menu
+//Show bootstrap menu
 function showBootstrapMenu() {
-  gameMode = 'bootstrap-menu';
+  gameMode = "bootstrap-menu";
   menuLoopRunning = false;
-  menuContainer.classList.remove('d-none');
-  gameContainer.classList.add('d-none');
+  menuContainer.classList.remove("d-none");
+  gameContainer.classList.add("d-none");
 }
 
-// Show canvas-based menu
+
 function showCanvasMenu() {
-  gameMode = 'canvas-menu';
+  gameMode = "canvas-menu";
   menuLoopRunning = true;
-  menuContainer.classList.add('d-none');
-  gameContainer.classList.remove('d-none');
+  menuContainer.classList.add("d-none");
+  gameContainer.classList.remove("d-none");
   resetLevelSelection();
   menuLoop();
 }
 
-// handles all key presses, routing them to the menu or game as appropriate
+//Handles game and menu key presses
 function handleAllKeyPress(e) {
-  // ESC from game: go back to canvas menu
-  if (e.key === 'Escape' && gameMode === 'game') {
+  //ESC from game: go back to canvas menu
+  if (e.key === "Escape" && gameMode === "game") {
     showCanvasMenu();
     return;
   }
   
-  // ESC from canvas menu: go back to bootstrap menu
-  if (e.key === 'Escape' && gameMode === 'canvas-menu') {
+  //ESC from canvas menu: go back to bootstrap menu
+  if (e.key === "Escape" && gameMode === "canvas-menu") {
     showBootstrapMenu();
     return;
   }
   
-  if (gameMode === 'canvas-menu') {
+  if (gameMode === "canvas-menu") {
     const selectedLevel = handleMenuKeyPress(e);
     if (selectedLevel) {
-      gameMode = 'game';
+      gameMode = "game";
       menuLoopRunning = false;
       currentChartPath = `./charts/${selectedLevel.chart}`;
       startGameWithChart();
     }
-  } else if (gameMode === 'game') {
+  } else if (gameMode === "game") {
     handleKeyPress(e);
   }
 }
 
-// starts the game with the currently selected chart
+//starts the game with the currently selected chart
 async function startGameWithChart() {
   await startGame(currentChartPath);
 }
 
-// Handle play button click
-playBtn.addEventListener('click', () => {
+//Handle play button click
+playBtn.addEventListener("click", () => {
   showCanvasMenu();
 });
 
-// Initialize
-document.addEventListener('keydown', handleAllKeyPress);
+//Initialize
+document.addEventListener("keydown", handleAllKeyPress);
 initializeGame();
 showBootstrapMenu();
