@@ -1,5 +1,5 @@
 import { HIT_LINE, HIT_THRESHOLD, LANES, NOTE_SPEED } from "./constants.js";
-import { checkHit } from "./noteManager.js";
+import { checkHit, counterIncrease } from "./noteManager.js";
 import { getGameState, updateGameState, damageHealth } from "./game.js";
 import { JUDGEMENTS } from "./constants.js";
 
@@ -22,9 +22,15 @@ export function handleKeyPress(e) {
 /*On hit, if the judgement is not a miss, update the game state with the new notes and judgement.
 If miss or hit when note is out of range, reduce health and reset combo.*/
   if (result.hit && result.judgment !== JUDGEMENTS.MISS) {
+    counterIncrease(result.judgment);
     updateGameState(result.notes, result.judgment);
+  } else if (result.hit && result.judgment === JUDGEMENTS.MISS) { //Note removed and judged as MISS
+    counterIncrease(JUDGEMENTS.MISS);
+    updateGameState(result.notes, JUDGEMENTS.MISS);
+    damageHealth(5);
   } else {
-    updateGameState(notes, JUDGEMENTS.MISS);
+    counterIncrease(JUDGEMENTS.MISS);
+    updateGameState(result.notes, JUDGEMENTS.MISS);
     damageHealth(5);
   }
 }   

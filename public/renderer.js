@@ -152,3 +152,10 @@ export function drawGameOver(ctx, canvas, score) {
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.fillText("Press ESC to return to menu", canvas.width / 2, canvas.height / 2 + 80);
 }
+
+export function drawAccuracy(ctx, canvas, accuracy) {
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(`Accuracy: ${accuracy.toFixed(2)}%`, 820, 130);
+}

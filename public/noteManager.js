@@ -95,9 +95,9 @@ export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
   if (hitIndex === -1) return { hit: false, notes, judgment: null };
 
   const hitNote = notes[hitIndex];
-  const judgement = hitNote.getJudgement(hitLine, noteSpeed);
+  const judgment = hitNote.getJudgement(hitLine, noteSpeed);
   const newNotes = notes.filter((_, i) => i !== hitIndex);
-  return { hit: true, notes: newNotes, judgement };
+  return { hit: true, notes: newNotes, judgment };
 }
 //Confirms whether or not the chart has spawned all notes
 export function isChartFinished() {
@@ -118,7 +118,7 @@ let judgementCounter={
   MEH:0,
   MISS:0
 }
-
+window.judgementCounter=judgementCounter
 export function counterIncrease(judgement){
   if(judgement===JUDGEMENTS.GREAT){
     judgementCounter.GREAT+=1;
