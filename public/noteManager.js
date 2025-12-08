@@ -92,7 +92,7 @@ export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
   const hitIndex = notes.findIndex(note => 
     note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
   );
-  if (hitIndex === -1) return { hit: false, notes, judgement: null };
+  if (hitIndex === -1) return { hit: false, notes, judgment: null };
 
   const hitNote = notes[hitIndex];
   const judgement = hitNote.getJudgement(hitLine, noteSpeed);
@@ -111,34 +111,32 @@ export function getChartNoteCount() {
   return chartData.notes.length;
 }
 
-//Tallies different judgements
-let judgementCounter={ 
-  great:0,
-  good:0,
-  ok:0,
-  meh:0,
-  miss:0
+let judgementCounter={
+  GREAT:0,
+  GOOD:0,
+  OK:0,
+  MEH:0,
+  MISS:0
 }
 
-let j=Note.getJudgement()
-export function counterIncrease(j){
-  if (j===JUDGEMENTS.GREAT){
-    judgementCounter.great+=1
+export function counterIncrease(judgement){
+  if(judgement===JUDGEMENTS.GREAT){
+    judgementCounter.GREAT+=1;
   }
-  if (j===JUDGEMENTS.GOOD){
-    judgementCounter.good+=1
+  else if(judgement===JUDGEMENTS.GOOD){
+    judgementCounter.GOOD+=1;
   }
-  if (j===JUDGEMENTS.OK){
-    judgementCounter.ok+=1
+  else if(judgement===JUDGEMENTS.OK){
+    judgementCounter.OK+=1;
   }
-  if (j===JUDGEMENTS.MEH){
-    judgementCounter.meh+=1
+  else if(judgement===JUDGEMENTS.MEH){
+    judgementCounter.MEH+=1;
   }
-  if (j===JUDGEMENTS.MISS){
-    judgementCounter.miss+=1
+  else if(judgement===JUDGEMENTS.MISS){
+    judgementCounter.MISS+=1;
   }
 }
 
-export function getJudgementCounts(){
-    return judgementCounter
-    }
+export function getJudgementCounter(){
+  return judgementCounter;
+}
