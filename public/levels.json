@@ -23,6 +23,12 @@
       "name": "Chords",
       "description": "Multi-lane simultaneous hits",
       "chart": "chart-chords.json"
+    },
+    {
+      "id": "extreme",
+      "name": "EXTREME",
+      "description": "Excruciatingly Difficult - 100 notes in 8.6 seconds",
+      "chart": "chart-extreme.json"
     }
   ]
 }

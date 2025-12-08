@@ -140,3 +140,11 @@ export function counterIncrease(judgement){
 export function getJudgementCounter(){
   return judgementCounter;
 }
+
+export function resetJudgementCounter(){
+  judgementCounter.GREAT = 0;
+  judgementCounter.GOOD = 0;
+  judgementCounter.OK = 0;
+  judgementCounter.MEH = 0;
+  judgementCounter.MISS = 0;
+}

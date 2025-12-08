@@ -1,5 +1,5 @@
 import { LANES } from "./constants.js";
-
+import { getGameState } from "./game.js";
 const LANE_WIDTH = 120;
 const KEYBINDS = ["D", "F", "J", "K"];
 const LANE_COLOUR = "rgba(255, 255, 255, 0.1)";
@@ -118,13 +118,16 @@ export function drawLevelComplete(ctx, canvas, score) {
     ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
     
     //Rank based on score
+    let y=getGameState();
+    let accuracy = y.accuracy;
     let rank = "F";
     let rankColor = "#FF0000";
-    if (score >= 30000) { rank = "S"; rankColor = "#FFD700"; }
-    else if (score >= 25000) { rank = "A"; rankColor = "#00FF00"; }
-    else if (score >= 20000) { rank = "B"; rankColor = "#00FFFF"; }
-    else if (score >= 15000) { rank = "C"; rankColor = "#FFFF00"; }
-    else if (score >= 10000) { rank = "D"; rankColor = "#FF8800"; }
+    if (accuracy === 100) { rank = "SS"; rankColor = "#FFD700"; }
+    else if (accuracy >= 95) { rank = "S"; rankColor = "#00FFFF"; }
+    else if (accuracy >= 90) { rank = "A"; rankColor = "#00FF00"; }
+    else if (accuracy >= 80) { rank = "B"; rankColor = "#0000FFFF"; }
+    else if (accuracy >= 70) { rank = "C"; rankColor = "#FF8800"; }
+    else if (accuracy >= 60) { rank = "D"; rankColor = "#FF0000"; }
     
     ctx.fillStyle = rankColor;
     ctx.font = "bold 80px Arial";

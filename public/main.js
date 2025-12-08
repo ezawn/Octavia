@@ -1,5 +1,4 @@
 import { handleKeyPress } from "./inputHandler.js";
-import { startGame, isGameOver, isLevelComplete } from "./game.js";
 import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection } from "./menu.js";
 
 const canvas = document.getElementById("gameCanvas");

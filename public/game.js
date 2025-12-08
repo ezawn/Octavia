@@ -1,5 +1,5 @@
 import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS, MAX_SCORE, JUDGEMENTS } from "./constants.js";
-import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished, getChartNoteCount, counterIncrease } from "./noteManager.js";
+import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished, getChartNoteCount, counterIncrease, resetJudgementCounter } from "./noteManager.js";
 import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawCombo, drawGameOver, drawJudgment, drawLevelComplete, drawAccuracy } from "./renderer.js";
 import { getJudgementCounter } from "./noteManager.js";
 const canvas = document.getElementById("gameCanvas");
@@ -176,6 +176,7 @@ export function resetGameState() {
   gameState.lastJudgment = null;
   gameState.judgmentDisplayTime = 0;
   gameState.accuracy = 0;
+  resetJudgementCounter();
   gameLoopRunning = false;
 }
 //Starts the game with the chart that the player selects
