@@ -1,8 +1,7 @@
 import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS, MAX_SCORE } from "./constants.js";
 import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished, getChartNoteCount } from "./noteManager.js";
 import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawCombo, drawGameOver, drawJudgment, drawLevelComplete } from "./renderer.js";
-import { getJudgementCounts } from "./noteManager.js";
-
+import { getJudgementCounter } from "./noteManager.js";
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -17,6 +16,7 @@ let gameState = {
   maxCombo: 0,
   noteCount: 0,
   maxRawScore: 0,
+  accuracy: 0,
 };
 
 let gameLoopRunning = false;
@@ -70,6 +70,7 @@ export function damageHealth(damage) {
   if (gameState.health <= 0) {
     gameState.health = 0;
     gameState.gameOver = true;
+    gameState.accuracy = accuracyCalculation();
   }
 }
 
@@ -124,6 +125,7 @@ function update() {
   //Confirms level is complete
   if (!gameState.levelComplete && isChartFinished() && gameState.notes.length === 0) {
     gameState.levelComplete = true;
+    gameState.accuracy = accuracyCalculation();
   }
 }
 /*Draws the game state each frame
@@ -188,15 +190,15 @@ export async function startGame(chartPath) {
   gameLoopRunning = true;
   gameLoop();
 }
-
-x=getJudgementCounts();
-/*Returns accuracy, 2 dec places
-Copied osu!mania accuracy formula*/
-export function accuracyCalculation(){
-  const totalNotes = gameState.noteCount;
-  if (totalNotes === 0) return 0;
-  numerator=(totalNotes+x.great)*300+(x.good)*200+(x.ok)*100+(x.meh)*50
-  denominator=300*(totalNotes+x.great+x.good+x.ok+x.meh+x.miss)
-  const accuracy = (numerator/denominator)*100
-  return accuracy.toFixed(2);
+/*Calculates accuracy of player at that point in time
+Copied formula from osu!mania for accuracy calculation*/
+export function accuracyCalculation() {
+  const judgementCounter = getJudgementCounter();
+  const noteChartCount = getChartNoteCount();
+  numerator=300*(noteChartCount+judgementCounter.GREAT)+200*judgementCounter.GOOD+100*judgementCounter.OKAY+50*judgementCounter.MEH
+  denominator=300*(noteChartCount+judgementCounter.GREAT+judgementCounter.GOOD+judgementCounter.OKAY+judgementCounter.MEH+judgementCounter.MISS)
+  if(denominator===0){ //Edge case to prevent NaN
+    return 0;
+  }
+  return (numerator/denominator)*100;
 }
