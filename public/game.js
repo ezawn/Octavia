@@ -1,6 +1,7 @@
 import { NOTE_SPEED, HIT_LINE, NOTE_RADIUS, MAX_HEALTH, HEALTH_DAMAGE_PER_MISS, COLOURS, MAX_SCORE } from "./constants.js";
 import { spawnNote, updateNotes, loadChart, resetChart, isChartFinished, getChartNoteCount } from "./noteManager.js";
 import { clear, drawLanes, drawHitLine, drawNotes, drawScore, drawHealth, drawCombo, drawGameOver, drawJudgment, drawLevelComplete } from "./renderer.js";
+import { getJudgementCounts } from "./noteManager.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -188,3 +189,14 @@ export async function startGame(chartPath) {
   gameLoop();
 }
 
+x=getJudgementCounts();
+/*Returns accuracy, 2 dec places
+Copied osu!mania accuracy formula*/
+export function accuracyCalculation(){
+  const totalNotes = gameState.noteCount;
+  if (totalNotes === 0) return 0;
+  numerator=(totalNotes+x.great)*300+(x.good)*200+(x.ok)*100+(x.meh)*50
+  denominator=300*(totalNotes+x.great+x.good+x.ok+x.meh+x.miss)
+  const accuracy = (numerator/denominator)*100
+  return accuracy.toFixed(2);
+}

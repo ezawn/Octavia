@@ -29,7 +29,7 @@ export class Note {
   }
   /*Judges notes based on the difference between hit line and note position
   Returns the judgement object*/
-  getJudgment(hitLine, noteSpeed) {
+  getJudgement(hitLine, noteSpeed) {
     const timingDifference = this.getTimingDifference(hitLine, noteSpeed);  
     if (timingDifference <= JUDGEMENTS.GREAT.threshold) {
       return JUDGEMENTS.GREAT;
@@ -87,17 +87,17 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
 }
 /*Verifies if note was correctly hit
 If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately
-Judgment is returned based on the timing difference*/
+Judgement is returned based on the timing difference*/
 export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
   const hitIndex = notes.findIndex(note => 
     note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
   );
-  if (hitIndex === -1) return { hit: false, notes, judgment: null };
+  if (hitIndex === -1) return { hit: false, notes, judgement: null };
 
   const hitNote = notes[hitIndex];
-  const judgment = hitNote.getJudgment(hitLine, noteSpeed);
+  const judgement = hitNote.getJudgement(hitLine, noteSpeed);
   const newNotes = notes.filter((_, i) => i !== hitIndex);
-  return { hit: true, notes: newNotes, judgment };
+  return { hit: true, notes: newNotes, judgement };
 }
 //Confirms whether or not the chart has spawned all notes
 export function isChartFinished() {
@@ -110,3 +110,35 @@ export function getChartNoteCount() {
   }
   return chartData.notes.length;
 }
+
+//Tallies different judgements
+let judgementCounter={ 
+  great:0,
+  good:0,
+  ok:0,
+  meh:0,
+  miss:0
+}
+
+let j=Note.getJudgement()
+export function counterIncrease(j){
+  if (j===JUDGEMENTS.GREAT){
+    judgementCounter.great+=1
+  }
+  if (j===JUDGEMENTS.GOOD){
+    judgementCounter.good+=1
+  }
+  if (j===JUDGEMENTS.OK){
+    judgementCounter.ok+=1
+  }
+  if (j===JUDGEMENTS.MEH){
+    judgementCounter.meh+=1
+  }
+  if (j===JUDGEMENTS.MISS){
+    judgementCounter.miss+=1
+  }
+}
+
+export function getJudgementCounts(){
+    return judgementCounter
+    }

@@ -1,4 +1,4 @@
-export const NOTE_SPEED = 0.3;//pixels per millisecond (frame-rate independent)
+export const NOTE_SPEED = 0.3;
 export const HIT_LINE = 500;
 export const SPAWN_INTERVAL = 1000;
 export const NOTE_RADIUS = 20;
