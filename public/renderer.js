@@ -1,5 +1,6 @@
 import { LANES } from "./constants.js";
 import { getGameState } from "./game.js";
+import { getJudgementCounter } from "./noteManager.js";
 const LANE_WIDTH = 120;
 const KEYBINDS = ["D", "F", "J", "K"];
 const LANE_COLOUR = "rgba(255, 255, 255, 0.1)";
@@ -117,7 +118,7 @@ export function drawLevelComplete(ctx, canvas, score) {
     ctx.font = "bold 40px Arial";
     ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
     
-    //Rank based on score
+    //Draw grade
     let y=getGameState();
     let accuracy = y.accuracy;
     let rank = "F";
@@ -137,6 +138,23 @@ export function drawLevelComplete(ctx, canvas, score) {
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.font = "16px Arial";
     ctx.fillText("Press ESC to return to menu", canvas.width / 2, canvas.height - 40);
+
+    //Draw judgements
+    let x=getJudgementCounter();
+    let greats=x.GREAT
+    let goods=x.GOOD
+    let oks=x.OK
+    let mehs=x.MEH
+    let misses=x.MISS
+    
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(`GREAT: ${greats}`, canvas.width / 2 - 100, canvas.height / 2 + 180);
+    ctx.fillText(`GOOD: ${goods}`, canvas.width / 2 - 100, canvas.height / 2 + 210);
+    ctx.fillText(`OK: ${oks}`, canvas.width / 2 - 100, canvas.height / 2 + 240);
+    ctx.fillText(`MEH: ${mehs}`, canvas.width / 2 - 100, canvas.height / 2 + 270);
+    ctx.fillText(`MISS: ${misses}`, canvas.width / 2 - 100, canvas.height / 2 + 300);
 }
 
 export function drawGameOver(ctx, canvas, score) {
@@ -162,3 +180,4 @@ export function drawAccuracy(ctx, canvas, accuracy) {
     ctx.textAlign = "left";
     ctx.fillText(`Accuracy: ${accuracy.toFixed(2)}%`, 820, 130);
 }
+
