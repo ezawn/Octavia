@@ -1,5 +1,6 @@
 import { handleKeyPress } from "./inputHandler.js";
 import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection } from "./menu.js";
+import { startGame } from "./game.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");

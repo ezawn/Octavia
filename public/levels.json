@@ -3,7 +3,7 @@
     {
       "id": "beginner",
       "name": "Beginner",
-      "description": "Easy chart",
+      "description": "Cakewalk",
       "chart": "chart-beginner.json"
     },
     {
@@ -19,6 +19,12 @@
       "chart": "chart-advanced.json"
     },
     {
+      "id": "hard",
+      "name": "Hard",
+      "description": "Pretty dang hard",
+      "chart": "chart-hard.json"
+    },
+    {
       "id": "chords",
       "name": "Chords",
       "description": "Multi-lane simultaneous hits",
@@ -27,7 +33,7 @@
     {
       "id": "extreme",
       "name": "EXTREME",
-      "description": "Excruciatingly Difficult - 100 notes in 8.6 seconds",
+      "description": "Excruciatingly Difficult",
       "chart": "chart-extreme.json"
     }
   ]
