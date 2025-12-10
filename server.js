@@ -11,12 +11,13 @@ app.use(express.static('public'));
 // Store active game rooms
 const rooms = new Map();
 
-// Generate unique room ID
+//Generate unique room ID
 function generateRoomId() {
-  return Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15); //Base 36, takes characters from index 2-15
 }
 
-// Broadcast message to all players in a room
+/*Broadcast message to all players in a room
+For example, when a player joins, leaves, or updates their game state, all clients will know*/
 function broadcastToRoom(roomId, message) {
   if (!rooms.has(roomId)) return;
 
@@ -33,7 +34,7 @@ wss.on('connection', (ws) => {
     let playerId = null;
     let roomId = null;
 
-    ws.send('Connected to Octavia server');
+    ws.send('Connected to Octavia server'); 
 
     ws.on('message', (data) => {
         try {
@@ -42,7 +43,7 @@ wss.on('connection', (ws) => {
             switch (message.type) {
                 case 'joinRoom':
                     playerId = message.playerId;
-                    roomId = message.roomId || generateRoomId();
+                    roomId = message.roomId || generateRoomId(); //Create new room if not provided
 
                     if (!rooms.has(roomId)) {
                         rooms.set(roomId, {
@@ -77,13 +78,13 @@ wss.on('connection', (ws) => {
 
                     console.log(`Player ${playerId} joined room ${roomId}`);
                     break;
-
-                case 'selectChart':
+                    //Host selects chart for players to play
+                case 'selectChart': 
                     if (roomId && rooms.has(roomId)) {
                         const room = rooms.get(roomId);
                         room.chartPath = message.chartPath;
                         room.status = 'playing';
-
+                        //Chart information broadcasted to all players
                         broadcastToRoom(roomId, {
                             type: 'startGame',
                             chartPath: message.chartPath
@@ -92,7 +93,7 @@ wss.on('connection', (ws) => {
                         console.log(`Room ${roomId} started game with chart: ${message.chartPath}`);
                     }
                     break;
-
+                    //Player updates their game state (score, health, etc.)
                 case 'updateGameState':
                     if (roomId && rooms.has(roomId)) {
                         const room = rooms.get(roomId);
