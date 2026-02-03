@@ -50,10 +50,14 @@ let gameStartTime = 0;
 /*Loads chart data from a given path
 Resets note index and game start time*/
 export async function loadChart(chartPath) {
-  const response = await fetch(chartPath); //Get the chart data from the specified path
-  chartData = await response.json(); //Parse the response as JSON and store it in chartData
-  nextNoteIndex = 0; //Ensures that the next note is the first note in the chart
-  gameStartTime = Date.now(); //Sets the game start time to the current time
+  try{
+    const response = await fetch(chartPath); //Get the chart data from the specified path
+    chartData = await response.json(); //Parse the response as JSON and store it in chartData
+    nextNoteIndex = 0; //Ensures that the next note is the first note in the chart
+    gameStartTime = Date.now(); //Sets the game start time to the current time  
+  }catch(error) {
+    console.error("Failed to load chart:", error)
+  }
 }
 //Restart chart from beginning
 export function resetChart() {
