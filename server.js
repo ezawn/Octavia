@@ -180,14 +180,14 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(3000, () => {
-    console.log('🎮 Server is listening on http://localhost:3000');
-    console.log('🌐 WebSocket multiplayer enabled');
+    console.log('Server is listening on http://localhost:3000');
+    console.log('WebSocket multiplayer enabled');
 });
 
 // Log room status periodically
 setInterval(() => {
     if (rooms.size > 0) {
-        console.log(`\n📊 Active rooms: ${rooms.size}`);
+        console.log(`\nActive rooms: ${rooms.size}`);
         rooms.forEach((room, roomId) => {
             console.log(`  Room ${roomId}: ${room.players.size} players, status: ${room.status}`);
         });

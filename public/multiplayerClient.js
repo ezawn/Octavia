@@ -117,7 +117,7 @@ export class MultiplayerClient {
    */
   joinRoom(roomId = null) {
     if (!this.isConnected) {
-      console.error('❌ Not connected to server');
+      console.error('[ERROR] Not connected to server');
       return;
     }
 
@@ -133,7 +133,7 @@ export class MultiplayerClient {
    */
   selectChart(chartPath) {
     if (!this.isConnected) {
-      console.error('❌ Not connected to server');
+      console.error('[ERROR] Not connected to server');
       return;
     }
 
@@ -148,7 +148,7 @@ export class MultiplayerClient {
    */
   updateGameState(gameState) {
     if (!this.isConnected) {
-      console.error('❌ Not connected to server');
+      console.error('[ERROR] Not connected to server');
       return;
     }
 
@@ -163,7 +163,7 @@ export class MultiplayerClient {
    */
   finishGame(finalScore, accuracy) {
     if (!this.isConnected) {
-      console.error('❌ Not connected to server');
+      console.error('[ERROR] Not connected to server');
       return;
     }
 
@@ -179,7 +179,7 @@ export class MultiplayerClient {
    */
   leaveRoom() {
     if (!this.isConnected) {
-      console.error('❌ Not connected to server');
+      console.error('[ERROR] Not connected to server');
       return;
     }
 
@@ -195,15 +195,15 @@ export class MultiplayerClient {
    */
   send(message) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('❌ WebSocket not ready');
+      console.error('[ERROR] WebSocket not ready');
       return;
     }
 
     try {
       this.ws.send(JSON.stringify(message));
-      console.log('📤 Sent:', message.type);
+      console.log('[SENT] Message:', message.type);
     } catch (error) {
-      console.error('❌ Error sending message:', error);
+      console.error('[ERROR] Error sending message:', error);
     }
   }
 
@@ -239,7 +239,7 @@ export class MultiplayerClient {
         try {
           callback(data);
         } catch (error) {
-          console.error(`❌ Error in ${event} callback:`, error);
+          console.error(`[ERROR] Error in ${event} callback:`, error);
         }
       });
     }

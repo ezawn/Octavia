@@ -80,10 +80,10 @@ export function drawMenu(ctx, canvas) {
     ctx.font = "12px Arial";
     ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
     if (selectedLevelIndex > 0) {
-      ctx.fillText("▲ More levels above", canvas.width / 2, startY - 10);
+      ctx.fillText("^ More levels above", canvas.width / 2, startY - 10);
     }
     if (selectedLevelIndex < levelList.length - 1) {
-      ctx.fillText("▼ More levels below", canvas.width / 2, startY + viewportHeight + 20);
+      ctx.fillText("v More levels below", canvas.width / 2, startY + viewportHeight + 20);
     }
   }
 }
