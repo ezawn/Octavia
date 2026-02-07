@@ -150,11 +150,11 @@ export function drawLevelComplete(ctx, canvas, score) {
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
     ctx.textAlign = "left";
-    ctx.fillText(`GREAT: ${greats}`, canvas.width / 2 - 100, canvas.height / 2 + 180);
-    ctx.fillText(`GOOD: ${goods}`, canvas.width / 2 - 100, canvas.height / 2 + 210);
-    ctx.fillText(`OK: ${oks}`, canvas.width / 2 - 100, canvas.height / 2 + 240);
-    ctx.fillText(`MEH: ${mehs}`, canvas.width / 2 - 100, canvas.height / 2 + 270);
-    ctx.fillText(`MISS: ${misses}`, canvas.width / 2 - 100, canvas.height / 2 + 300);
+    ctx.fillText(`GREAT: ${greats}`, 100, canvas.height / 2 + 150);
+    ctx.fillText(`GOOD: ${goods}`, 100, canvas.height / 2 + 180);
+    ctx.fillText(`OK: ${oks}`, 100, canvas.height / 2 + 210);
+    ctx.fillText(`MEH: ${mehs}`, 100, canvas.height / 2 + 240);
+    ctx.fillText(`MISS: ${misses}`, 100, canvas.height / 2 + 270);
 }
 
 export function drawGameOver(ctx, canvas, score) {

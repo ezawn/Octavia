@@ -90,7 +90,7 @@ export function drawMenu(ctx, canvas) {
 //Handles key presses in the menu for level selection
 export function handleMenuKeyPress(e) {
   const levelList = levels || [];
-
+  if (levelList.length === 0) return null; //No levels loaded, ignore input, prevents errors
   if (e.key === "ArrowUp") {
     e.preventDefault();
     selectedLevelIndex = (selectedLevelIndex - 1 + levelList.length) % levelList.length; //Goes back one in the list, wraps to end if at start
