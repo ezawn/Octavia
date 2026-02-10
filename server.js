@@ -181,7 +181,6 @@ wss.on('connection', (ws) => {
 
 server.listen(3000, () => {
     console.log('Server is listening on http://localhost:3000');
-    console.log('WebSocket multiplayer enabled');
 });
 
 // Log room status periodically
