@@ -2,7 +2,8 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "express": "^5.1.0",
-    "ws": "^8.18.3"
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
     "jasmine-browser-runner": "^3.0.0",

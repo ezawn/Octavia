@@ -111,3 +111,52 @@ export function getSelectedLevel() {
 export function resetLevelSelection() {
   selectedLevelIndex = 0;
 }
+
+/**
+ * Multiplayer menu management
+ */
+let currentRoomId = null;
+let playersInRoom = 0;
+
+export function setRoomInfo(roomId, playerCount) {
+  currentRoomId = roomId;
+  playersInRoom = playerCount;
+  updateRoomDisplay();
+}
+
+export function updatePlayerCount(count) {
+  playersInRoom = count;
+  updateRoomDisplay();
+}
+
+function updateRoomDisplay() {
+  const roomInfoContainer = document.getElementById('roomInfoContainer');
+  const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+  const playerCountDisplay = document.getElementById('playerCountDisplay');
+  
+  if (currentRoomId) {
+    roomInfoContainer.classList.remove('d-none');
+    roomCodeDisplay.textContent = currentRoomId;
+    playerCountDisplay.textContent = playersInRoom;
+  }
+}
+
+export function showStatusMessage(message, type = 'info') {
+  const statusMessage = document.getElementById('roomStatusMessage');
+  statusMessage.textContent = message;
+  statusMessage.className = `alert alert-${type}`;
+  statusMessage.classList.remove('d-none');
+}
+
+export function hideStatusMessage() {
+  const statusMessage = document.getElementById('roomStatusMessage');
+  statusMessage.classList.add('d-none');
+}
+
+export function clearRoomInfo() {
+  currentRoomId = null;
+  playersInRoom = 0;
+  const roomInfoContainer = document.getElementById('roomInfoContainer');
+  roomInfoContainer.classList.add('d-none');
+  hideStatusMessage();
+}
