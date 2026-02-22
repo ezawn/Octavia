@@ -143,9 +143,7 @@ export class MultiplayerClient {
     console.log('[SENT] selectChart event');
   }
 
-  /**
-   * Send game state update during gameplay
-   */
+  //Send gamestate update
   updateGameState(gameState) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
@@ -159,9 +157,7 @@ export class MultiplayerClient {
     console.log('[SENT] updateGameState event');
   }
 
-  /**
-   * Send game finished message with final score
-   */
+ //Send message with final score
   finishGame(finalScore, accuracy) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
@@ -176,9 +172,7 @@ export class MultiplayerClient {
     console.log('[SENT] finishGame event');
   }
 
-  /**
-   * Leave the current room
-   */
+  //leave room
   leaveRoom() {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
@@ -186,14 +180,12 @@ export class MultiplayerClient {
     }
 
     this.socket.emit('leaveRoom');
-    this.disconnect();
+    this.roomId = null;
 
     console.log('[SENT] leaveRoom event');
   }
 
-  /**
-   * Disconnect from server
-   */
+//dc from server
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
@@ -202,11 +194,7 @@ export class MultiplayerClient {
     }
   }
 
-  /**
-   * Register event callback
-   * @param {string} event - Event name (roomJoined, playerJoined, startGame, etc.)
-   * @param {function} callback - Callback function
-   */
+//Event callback
   on(event, callback) {
     if (!this.callbacks.has(event)) {
       this.callbacks.set(event, []);

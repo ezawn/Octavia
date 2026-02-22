@@ -13,6 +13,8 @@ const multiplayerBtn = document.getElementById("multiplayerBtn");
 const backToMainBtn = document.getElementById("backToMainBtn");
 const joinRoomBtn = document.getElementById("joinRoomBtn");
 const createRoomBtn = document.getElementById("createRoomBtn");
+const leaveRoomBtn = document.getElementById("leaveRoomBtn");
+const startGameBtn = document.getElementById("startGameBtn");
 const roomCodeInput = document.getElementById("roomCodeInput");
 
 let gameMode = "bootstrap-menu"; // bootstrap-menu, multiplayer-menu, canvas-menu, or game
@@ -21,10 +23,31 @@ let menuLoopRunning = false;
 let multiplayerClient = null;
 let isMultiplayer = false;
 let isConnectingToMultiplayer = false;
+let isInRoom = false;
 
 async function initializeGame() {
   await loadLevels();
   resetLevelSelection();
+}
+
+//Update UI based on room state
+function updateRoomUI() {
+  if (isInRoom) {
+    //If in room show leave and start game buttons, hide join/create
+    leaveRoomBtn.classList.remove("d-none");
+    startGameBtn.classList.remove("d-none");
+    joinRoomBtn.classList.add("d-none");
+    createRoomBtn.classList.add("d-none");
+    roomCodeInput.classList.add("d-none");
+    showStatusMessage('You are in a room. Select a chart to start the game or click "LEAVE ROOM" to exit.', 'warning');
+  } else {
+    //If not in room, hide leave and start game buttons, show join/create
+    leaveRoomBtn.classList.add("d-none");
+    startGameBtn.classList.add("d-none");
+    joinRoomBtn.classList.remove("d-none");
+    createRoomBtn.classList.remove("d-none");
+    roomCodeInput.classList.remove("d-none");
+  }
 }
 
 // Canvas-based menu loop (used when coming from bootstrap menu)
@@ -45,15 +68,22 @@ function showBootstrapMenu() {
 }
 
 // Show multiplayer menu
-function showMultiplayerMenu() {
+function showMultiplayerMenu(clearRoom = false) {
   gameMode = "multiplayer-menu";
   menuLoopRunning = false;
   menuContainer.classList.add("d-none");
   multiplayerMenuContainer.classList.remove("d-none");
   gameContainer.classList.add("d-none");
-  clearRoomInfo();
+  
+  // Only clear room info if explicitly requested (when going back to main menu)
+  if (clearRoom) {
+    clearRoomInfo();
+    isInRoom = false;
+  }
+  
   roomCodeInput.value = "";
   roomCodeInput.focus();
+  updateRoomUI();
 }
 
 function showCanvasMenu() {
@@ -81,7 +111,8 @@ function handleAllKeyPress(e) {
   // ESC from canvas menu: go back to appropriate menu
   if (e.key === "Escape" && gameMode === "canvas-menu") {
     if (isMultiplayer) {
-      showMultiplayerMenu();
+      // Coming back from chart selection, stay in room
+      showMultiplayerMenu(false);
     } else {
       showBootstrapMenu();
     }
@@ -108,7 +139,11 @@ function handleAllKeyPress(e) {
 }
 
 // Starts the game with the currently selected chart
-async function startGameWithChart() {
+async function startGameWithChart(sendToOthers = true) {
+  // If in multiplayer and told to send, notify other players of chart selection
+  if (sendToOthers && isMultiplayer && multiplayerClient && multiplayerClient.isConnectedToServer()) {
+    multiplayerClient.selectChart(currentChartPath);
+  }
   await startGame(currentChartPath);
 }
 
@@ -129,14 +164,15 @@ async function initializeMultiplayer() {
   isConnectingToMultiplayer = true;
 
   if (!multiplayerClient) {
-    multiplayerClient = new MultiplayerClient('ws://localhost:3000');
-    
+    multiplayerClient = new MultiplayerClient('ws://localhost:3000');   
     // Setup event listeners
     multiplayerClient.on('roomJoined', (data) => {
       console.log('Room joined successfully:', data);
       const roomId = data.roomId;
       const playerCount = data.players ? data.players.length : 1;
       setRoomInfo(roomId, playerCount);
+      isInRoom = true;
+      updateRoomUI();
       showStatusMessage(`Room joined! Code: ${roomId}`, 'success');
     });
 
@@ -159,8 +195,14 @@ async function initializeMultiplayer() {
       console.log('Game starting with chart:', data.chartPath);
       // Start the game with the selected chart
       currentChartPath = data.chartPath;
+      
+
+      // Show game container and hide multiplayer menu
+      multiplayerMenuContainer.classList.add("d-none");
+      gameContainer.classList.remove("d-none");
       gameMode = "game";
-      startGameWithChart();
+      menuLoopRunning = false;
+      startGameWithChart(false); // false = don't send chart again, server already did
     });
 
     multiplayerClient.on('disconnect', () => {
@@ -178,6 +220,7 @@ async function initializeMultiplayer() {
     await multiplayerClient.connect(playerId);
     isConnectingToMultiplayer = false;
     return true;
+
   } catch (error) {
     console.error('Failed to connect to multiplayer:', error);
     showStatusMessage('Failed to connect to server. Server may be offline.', 'danger');
@@ -188,8 +231,11 @@ async function initializeMultiplayer() {
 
 // Handle join room button
 joinRoomBtn.addEventListener("click", async () => {
+  if (isInRoom) {
+    showStatusMessage('You are already in a room. Click "LEAVE ROOM" first.', 'warning');
+    return;
+  }
   const roomCode = roomCodeInput.value.trim();
-  
   if (!roomCode) {
     showStatusMessage('Please enter a room code', 'warning');
     return;
@@ -205,7 +251,6 @@ joinRoomBtn.addEventListener("click", async () => {
     multiplayerClient.joinRoom(roomCode);
     isMultiplayer = true;
   }
-
   // Re-enable buttons
   joinRoomBtn.disabled = false;
   createRoomBtn.disabled = false;
@@ -213,6 +258,10 @@ joinRoomBtn.addEventListener("click", async () => {
 
 // Handle create room button
 createRoomBtn.addEventListener("click", async () => {
+  if (isInRoom) {
+    showStatusMessage('You are already in a room. Click "LEAVE ROOM" first.', 'warning');
+    return;
+  }
   // Disable buttons during connection
   joinRoomBtn.disabled = true;
   createRoomBtn.disabled = true;
@@ -235,8 +284,30 @@ backToMainBtn.addEventListener("click", () => {
     multiplayerClient.disconnect();
   }
   isMultiplayer = false;
+  isInRoom = false;
   clearRoomInfo();
   showBootstrapMenu();
+});
+
+// Handle leave room button
+leaveRoomBtn.addEventListener("click", async () => {
+  leaveRoomBtn.disabled = true;
+  
+  if (multiplayerClient && multiplayerClient.isConnectedToServer()) {
+    multiplayerClient.leaveRoom();
+  }
+  
+  isInRoom = false;
+  clearRoomInfo();
+  updateRoomUI();
+  showStatusMessage('Left the room. You can now join or create a new room.', 'info');
+  
+  leaveRoomBtn.disabled = false;
+});
+
+// Handle start game button
+startGameBtn.addEventListener("click", () => {
+  showCanvasMenu();
 });
 
 // Handle play button click
@@ -247,7 +318,7 @@ playBtn.addEventListener("click", () => {
 
 // Handle multiplayer button click
 multiplayerBtn.addEventListener("click", () => {
-  showMultiplayerMenu();
+  showMultiplayerMenu(true);
 });
 
 // Initialize
