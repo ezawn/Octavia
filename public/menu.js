@@ -2,6 +2,7 @@ import { COLOURS } from "./constants.js";
 
 let levels = [];
 let selectedLevelIndex = 0;
+let scrollSpeedMultiplier = 1.0; // Current scroll speed (0.5x to 3.0x)
 
 export async function loadLevels() {
   const response = await fetch("./levels.json");
@@ -159,4 +160,76 @@ export function clearRoomInfo() {
   const roomInfoContainer = document.getElementById('roomInfoContainer');
   roomInfoContainer.classList.add('d-none');
   hideStatusMessage();
+}
+
+// Scroll speed functions
+export function getScrollSpeedMultiplier() {
+  return scrollSpeedMultiplier;
+}
+
+export function setScrollSpeedMultiplier(speed) {
+  scrollSpeedMultiplier = Math.max(0.5, Math.min(3.0, speed));
+}
+
+export function drawSettingsMenu(ctx, canvas) {
+  // Background
+  ctx.fillStyle = "#111";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Title
+  ctx.fillStyle = "white";
+  ctx.font = "bold 48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("SETTINGS", canvas.width / 2, 80);
+
+  // Settings section
+  ctx.font = "24px Arial";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.textAlign = "center";
+  ctx.fillText("Scroll Speed", canvas.width / 2, 180);
+
+  // Display current speed
+  ctx.font = "36px Arial";
+  ctx.fillStyle = "#00FFFF";
+  ctx.fillText(scrollSpeedMultiplier.toFixed(2) + "x", canvas.width / 2, 250);
+
+  // Speed buttons / slider representation
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+  ctx.textAlign = "center";
+  ctx.fillText("Press LEFT/RIGHT to adjust (0.5x - 3.0x)", canvas.width / 2, 310);
+
+  // Show speed range
+  const barWidth = 400;
+  const barHeight = 30;
+  const barX = canvas.width / 2 - barWidth / 2;
+  const barY = 360;
+
+  // Draw speed bar background
+  ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+
+  // Draw filled portion
+  const fillPercent = (scrollSpeedMultiplier - 0.5) / 2.5; // 0.5 to 3.0 range
+  ctx.fillStyle = "#00FFFF";
+  ctx.fillRect(barX, barY, barWidth * fillPercent, barHeight);
+
+  // Draw border
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+  // Labels
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.textAlign = "left";
+  ctx.fillText("0.5x", barX - 30, barY + 20);
+  ctx.textAlign = "right";
+  ctx.fillText("3.0x", barX + barWidth + 30, barY + 20);
+
+  // Instructions
+  ctx.font = "14px Arial";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.textAlign = "center";
+  ctx.fillText("Press ESC to go back", canvas.width / 2, canvas.height - 30);
 }

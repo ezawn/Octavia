@@ -1,4 +1,4 @@
-import { LANES, JUDGEMENTS } from "./constants.js";
+import { LANES, JUDGEMENTS, NOTE_SPEED } from "./constants.js";
 //Creates the note class which represents each note in the game (OOP)
 export class Note {
   constructor(x, y, lane) {
@@ -64,9 +64,9 @@ export function resetChart() {
   nextNoteIndex = 0;
   gameStartTime = Date.now();
 }
-/*Spawns notes based on the chart data and the elapsed time since the game started
-Also updates the notes array with new notes when their spawn time is reached*/
-export function spawnNote(notes) {
+/*Spawns notes for normal/faster speeds: spawn later at the top (Y=0)
+Positive offset delays the spawn time, giving notes more time to fall*/
+function spawnNotePositiveOffset(notes, spawnTimeOffset) {
   if (!chartData || nextNoteIndex >= chartData.notes.length) {
     return notes;
   }
@@ -74,13 +74,62 @@ export function spawnNote(notes) {
   const nextNote = chartData.notes[nextNoteIndex];
   const timeSinceStart = Date.now() - gameStartTime;
   
-  if (timeSinceStart >= nextNote.time) {
+  // Spawn later with positive offset
+  if (timeSinceStart >= nextNote.time + spawnTimeOffset) {
     const laneX = LANES[nextNote.lane];
     nextNoteIndex++;
     return [...notes, new Note(laneX, 0, nextNote.lane)];
   }
   
   return notes;
+}
+
+/*Spawns notes for slower speeds: spawn at normal time but pre-positioned lower on screen
+This compensates for the slower fall speed by starting the note further down*/
+function spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed) {
+  if (!chartData || nextNoteIndex >= chartData.notes.length) {
+    return notes;
+  }
+  
+  const nextNote = chartData.notes[nextNoteIndex];
+  const timeSinceStart = Date.now() - gameStartTime;
+  
+  // Spawn at normal time, but calculate how far the note has already fallen
+  if (timeSinceStart >= nextNote.time) {
+    const laneX = LANES[nextNote.lane];
+    // Calculate pre-positioned Y based on absolute offset (represents milliseconds of falling already done)
+    const preCalculatedY = Math.abs(spawnTimeOffset) * currentNoteSpeed;
+    nextNoteIndex++;
+    return [...notes, new Note(laneX, preCalculatedY, nextNote.lane)];
+  }
+  
+  return notes;
+}
+
+/*Spawns notes based on the chart data and the elapsed time since the game started
+Routes to appropriate handler based on offset sign*/
+export function spawnNote(notes, spawnTimeOffset = 0, currentNoteSpeed = NOTE_SPEED) {
+  if (spawnTimeOffset > 0) {
+    return spawnNotePositiveOffset(notes, spawnTimeOffset);
+  } else if (spawnTimeOffset < 0) {
+    return spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed);
+  } else {
+    // Normal spawn at 1x speed
+    if (!chartData || nextNoteIndex >= chartData.notes.length) {
+      return notes;
+    }
+    
+    const nextNote = chartData.notes[nextNoteIndex];
+    const timeSinceStart = Date.now() - gameStartTime;
+    
+    if (timeSinceStart >= nextNote.time) {
+      const laneX = LANES[nextNote.lane];
+      nextNoteIndex++;
+      return [...notes, new Note(laneX, 0, nextNote.lane)];
+    }
+    
+    return notes;
+  }
 }
 //Updates position of existing notes, removes off-screen notes
 export function updateNotes(notes, noteSpeed, canvasHeight) {

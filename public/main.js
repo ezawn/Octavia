@@ -1,5 +1,5 @@
 import { handleKeyPress } from "./inputHandler.js";
-import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection, setRoomInfo, updatePlayerCount, showStatusMessage, clearRoomInfo } from "./menu.js";
+import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection, setRoomInfo, updatePlayerCount, showStatusMessage, clearRoomInfo, getScrollSpeedMultiplier, setScrollSpeedMultiplier, drawSettingsMenu } from "./menu.js";
 import { startGame } from "./game.js";
 import { MultiplayerClient } from "./multiplayerClientSocket.js";
 
@@ -16,8 +16,9 @@ const createRoomBtn = document.getElementById("createRoomBtn");
 const leaveRoomBtn = document.getElementById("leaveRoomBtn");
 const startGameBtn = document.getElementById("startGameBtn");
 const roomCodeInput = document.getElementById("roomCodeInput");
+const settingsBtn = document.getElementById("settingsBtn");
 
-let gameMode = "bootstrap-menu"; // bootstrap-menu, multiplayer-menu, canvas-menu, or game
+let gameMode = "bootstrap-menu"; // bootstrap-menu, multiplayer-menu, canvas-menu, settings, or game
 let currentChartPath = null;
 let menuLoopRunning = false;
 let multiplayerClient = null;
@@ -54,7 +55,11 @@ function updateRoomUI() {
 function menuLoop() {
   if (!menuLoopRunning) return;
   
-  drawMenu(ctx, canvas);
+  if (gameMode === "settings") {
+    drawSettingsMenu(ctx, canvas);
+  } else {
+    drawMenu(ctx, canvas);
+  }
   requestAnimationFrame(menuLoop);
 }
 
@@ -96,6 +101,16 @@ function showCanvasMenu() {
   menuLoop();
 }
 
+// Show settings menu
+function showSettings() {
+  gameMode = "settings";
+  menuLoopRunning = true;
+  menuContainer.classList.add("d-none");
+  multiplayerMenuContainer.classList.add("d-none");
+  gameContainer.classList.remove("d-none");
+  menuLoop();
+}
+
 // Handles game and menu key presses
 function handleAllKeyPress(e) {
   // ESC from game: go back to canvas menu
@@ -124,6 +139,12 @@ function handleAllKeyPress(e) {
     showBootstrapMenu();
     return;
   }
+
+  // ESC from settings: go back to bootstrap menu
+  if (e.key === "Escape" && gameMode === "settings") {
+    showBootstrapMenu();
+    return;
+  }
   
   if (gameMode === "canvas-menu") {
     const selectedLevel = handleMenuKeyPress(e);
@@ -132,6 +153,18 @@ function handleAllKeyPress(e) {
       menuLoopRunning = false;
       currentChartPath = `./charts/${selectedLevel.chart}`;
       startGameWithChart();
+    }
+  } else if (gameMode === "settings") {
+    // Handle scroll speed adjustment
+    const step = 0.1;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      let speed = getScrollSpeedMultiplier() - step;
+      setScrollSpeedMultiplier(speed);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      let speed = getScrollSpeedMultiplier() + step;
+      setScrollSpeedMultiplier(speed);
     }
   } else if (gameMode === "game") {
     handleKeyPress(e);
@@ -144,7 +177,7 @@ async function startGameWithChart(sendToOthers = true) {
   if (sendToOthers && isMultiplayer && multiplayerClient && multiplayerClient.isConnectedToServer()) {
     multiplayerClient.selectChart(currentChartPath);
   }
-  await startGame(currentChartPath);
+  await startGame(currentChartPath, getScrollSpeedMultiplier());
 }
 
 // Initialize multiplayer client
@@ -320,6 +353,13 @@ playBtn.addEventListener("click", () => {
 multiplayerBtn.addEventListener("click", () => {
   showMultiplayerMenu(true);
 });
+
+// Handle settings button click
+if (settingsBtn) {
+  settingsBtn.addEventListener("click", () => {
+    showSettings();
+  });
+}
 
 // Initialize
 document.addEventListener("keydown", handleAllKeyPress);

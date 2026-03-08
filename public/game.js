@@ -20,6 +20,9 @@ let gameState = {
 };
 window.gameState=gameState;
 let gameLoopRunning = false;
+let currentScrollSpeed = 1.0; // Speed multiplier
+let currentNoteSpeed = NOTE_SPEED; // Actual pixels per ms
+let spawnTimeOffset = 0; // Milliseconds to offset spawn times
 
 export function getGameState() {
   return gameState;
@@ -105,9 +108,9 @@ export function calculateScoreContribution(noteScore, maxRawScore) {
 Spawns notes, updates the already existing notes, checks for missed notes*/
 function update() {
   //Spawns note by reading the chart json file
-  gameState.notes = spawnNote(gameState.notes);
+  gameState.notes = spawnNote(gameState.notes, spawnTimeOffset, currentNoteSpeed);
   const previousNotes = gameState.notes;
-  gameState.notes = updateNotes(gameState.notes, NOTE_SPEED, canvas.height);
+  gameState.notes = updateNotes(gameState.notes, currentNoteSpeed, canvas.height);
 
   const missedNotes = previousNotes.filter(note => { //Creates array of missed notes
     const isPastHitLine = note.y > HIT_LINE;
@@ -176,14 +179,30 @@ export function resetGameState() {
   gameState.lastJudgment = null;
   gameState.judgmentDisplayTime = 0;
   gameState.accuracy = 0;
+  currentScrollSpeed = 1.0;
+  currentNoteSpeed = NOTE_SPEED;
+  spawnTimeOffset = 0;
   resetJudgementCounter();
   gameLoopRunning = false;
 }
 //Starts the game with the chart that the player selects
-export async function startGame(chartPath) {
+export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
   resetGameState();
   await loadChart(chartPath);
   resetChart();
+  
+  // Set scroll speed
+  currentScrollSpeed = Math.max(0.5, Math.min(3.0, scrollSpeedMultiplier)); //Ensure its between 0.5 and 3.0
+  currentNoteSpeed = NOTE_SPEED * currentScrollSpeed;
+  if (currentScrollSpeed !== 1.0) {
+    const distanceToHitline = HIT_LINE;
+    const timeDifference = distanceToHitline * Math.abs(1 / NOTE_SPEED - 1 / currentNoteSpeed);
+    // Faster speeds: spawn later (+offset) so notes have time to reach hitline
+    // Slower speeds: spawn at normal time but pre-positioned (-offset)
+    spawnTimeOffset = currentScrollSpeed > 1.0 ? timeDifference : -timeDifference;
+  } else {
+    spawnTimeOffset = 0;
+  }
   
   //Total notes, maximum raw score before normalization
   gameState.noteCount = getChartNoteCount();
