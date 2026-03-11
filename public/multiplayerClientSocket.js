@@ -101,6 +101,11 @@ export class MultiplayerClient {
       console.log(`${data.playerId} finished! Score: ${data.finalScore}, Accuracy: ${data.accuracy.toFixed(2)}%`);
       this.triggerCallback('gameFinished', data);
     });
+    // Chat message received
+    this.socket.on('chatMessage', (data) => {
+      console.log(`${data.playerId}: ${data.message}`);
+      this.triggerCallback('chatMessage', data);
+    });
     // Error from server
     this.socket.on('error', (data) => {
       console.error('Server error:', data);
@@ -183,6 +188,25 @@ export class MultiplayerClient {
     this.roomId = null;
 
     console.log('[SENT] leaveRoom event');
+  }
+
+  //Send chat message
+  sendChat(message) {
+    if (!this.isConnected) {
+      console.error('[ERROR] Not connected to server');
+      return;
+    }
+
+    if (!message || message.trim() === '') {
+      console.warn('[WARNING] Cannot send empty message');
+      return;
+    }
+
+    this.socket.emit('sendChat', {
+      message: message.trim()
+    });
+
+    console.log('[SENT] sendChat event:', message);
   }
 
 //dc from server

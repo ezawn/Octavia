@@ -15,9 +15,13 @@ Updates game state based on hit results*/
 export function handleKeyPress(e) {
   if (!(e.code in KEY_TO_LANE)) return;
 
+  const gameState = getGameState();
+  // Don't accept hits after the chart ends or if game is over
+  if (gameState.levelComplete || gameState.gameOver) return;
+
   const lane = KEY_TO_LANE[e.code];
   const laneX = LANES[lane];
-  const { notes } = getGameState();
+  const { notes } = gameState;
   const result = checkHit(notes, HIT_LINE, HIT_THRESHOLD, laneX, NOTE_SPEED);
 /*On hit, if the judgement is not a miss, update the game state with the new notes and judgement.
 If miss or hit when note is out of range, reduce health and reset combo.*/

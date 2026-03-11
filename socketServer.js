@@ -200,7 +200,23 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Event 7: Socket error handler
+  // Event 7: Chat message
+  socket.on("sendChat", (data) => {
+    try {
+      if (roomId && rooms.has(roomId)) {
+        broadcastToRoom(roomId, "chatMessage", {
+          playerId: playerId,
+          message: data.message,
+          timestamp: Date.now()
+        });
+        console.log(`Chat from ${playerId} in room ${roomId}: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error in sendChat:", error);
+    }
+  });
+
+  // Event 8: Socket error handler
   socket.on("error", (error) => {
     console.error(`Socket error for ${playerId}:`, error);
   });

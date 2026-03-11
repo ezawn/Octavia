@@ -64,3 +64,42 @@ canvas {
     margin: 0;
 }
 
+/* Chat styling */
+#chatMessages {
+    font-size: 0.9rem;
+}
+
+.chat-message {
+    padding: 8px;
+    border-radius: 4px;
+    word-wrap: break-word;
+}
+
+.chat-message-player {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border-left: 3px solid #00ffff;
+    padding-left: 10px;
+}
+
+.chat-message-other {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    border-left: 3px solid #666;
+    padding-left: 10px;
+}
+
+.chat-player-name {
+    font-weight: bold;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+#chatInput {
+    border-radius: 4px 0 0 4px;
+}
+
+#sendChatBtn {
+    border-radius: 0 4px 4px 0;
+}
+

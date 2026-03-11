@@ -76,6 +76,17 @@
                                 </p>
                             </div>
 
+                            <hr class="text-secondary my-3 d-none" id="chatDivider">
+                            
+                            <div id="chatContainer" class="d-none" style="max-height: 300px; overflow-y: auto; background: rgba(0, 0, 0, 0.3); border: 1px solid #555; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                <div id="chatMessages" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                            </div>
+
+                            <div id="chatInputContainer" class="d-none input-group mb-3">
+                                <input type="text" id="chatInput" class="form-control bg-secondary text-white" placeholder="Type a message..." style="border-color: #666;">
+                                <button class="btn btn-primary" id="sendChatBtn" type="button">Send</button>
+                            </div>
+
                             <button class="btn btn-secondary btn-sm w-100" id="backToMainBtn">
                                 Back to Main Menu
                             </button>

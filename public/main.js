@@ -17,6 +17,12 @@ const leaveRoomBtn = document.getElementById("leaveRoomBtn");
 const startGameBtn = document.getElementById("startGameBtn");
 const roomCodeInput = document.getElementById("roomCodeInput");
 const settingsBtn = document.getElementById("settingsBtn");
+const chatContainer = document.getElementById("chatContainer");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const sendChatBtn = document.getElementById("sendChatBtn");
+const chatInputContainer = document.getElementById("chatInputContainer");
+const chatDivider = document.getElementById("chatDivider");
 
 let gameMode = "bootstrap-menu"; // bootstrap-menu, multiplayer-menu, canvas-menu, settings, or game
 let currentChartPath = null;
@@ -40,6 +46,9 @@ function updateRoomUI() {
     joinRoomBtn.classList.add("d-none");
     createRoomBtn.classList.add("d-none");
     roomCodeInput.classList.add("d-none");
+    chatContainer.classList.remove("d-none");
+    chatInputContainer.classList.remove("d-none");
+    chatDivider.classList.remove("d-none");
     showStatusMessage('You are in a room. Select a chart to start the game or click "LEAVE ROOM" to exit.', 'warning');
   } else {
     //If not in room, hide leave and start game buttons, show join/create
@@ -48,6 +57,9 @@ function updateRoomUI() {
     joinRoomBtn.classList.remove("d-none");
     createRoomBtn.classList.remove("d-none");
     roomCodeInput.classList.remove("d-none");
+    chatContainer.classList.add("d-none");
+    chatInputContainer.classList.add("d-none");
+    chatDivider.classList.add("d-none");
   }
 }
 
@@ -61,6 +73,50 @@ function menuLoop() {
     drawMenu(ctx, canvas);
   }
   requestAnimationFrame(menuLoop);
+}
+
+// Display a chat message in the chat container
+function displayChatMessage(playerId, message) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "chat-message";
+  
+  const isCurrentPlayer = multiplayerClient && multiplayerClient.getPlayerId() === playerId;
+  messageDiv.classList.add(isCurrentPlayer ? "chat-message-player" : "chat-message-other");
+  
+  const playerNameDiv = document.createElement("span");
+  playerNameDiv.className = "chat-player-name";
+  playerNameDiv.textContent = isCurrentPlayer ? "You" : playerId;
+  
+  const messageSpan = document.createElement("span");
+  messageSpan.textContent = message;
+  
+  messageDiv.appendChild(playerNameDiv);
+  messageDiv.appendChild(document.createElement("br"));
+  messageDiv.appendChild(messageSpan);
+  
+  chatMessages.appendChild(messageDiv);
+  
+  // Auto-scroll to bottom
+  chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+}
+
+// Send a chat message
+function sendChatMessage() {
+  const message = chatInput.value.trim();
+  if (!message) return;
+  
+  if (multiplayerClient && multiplayerClient.isConnected) {
+    multiplayerClient.sendChat(message);
+    displayChatMessage(multiplayerClient.getPlayerId(), message);
+  }
+  
+  chatInput.value = "";
+  chatInput.focus();
+}
+
+// Clear chat messages
+function clearChatMessages() {
+  chatMessages.innerHTML = "";
 }
 
 // Show bootstrap menu
@@ -113,13 +169,19 @@ function showSettings() {
 
 // Handles game and menu key presses
 function handleAllKeyPress(e) {
-  // ESC from game: go back to canvas menu
+  // ESC from game: go back to appropriate menu
   if (e.key === "Escape" && gameMode === "game") {
-    if (isMultiplayer && multiplayerClient) {
-      multiplayerClient.leaveRoom();
-      isMultiplayer = false;
+    if (isInRoom) {
+      // In multiplayer room, return to lobby without leaving
+      showMultiplayerMenu(false);
+    } else {
+      // In singleplayer, go back to chart selection
+      if (isMultiplayer && multiplayerClient) {
+        multiplayerClient.leaveRoom();
+        isMultiplayer = false;
+      }
+      showCanvasMenu();
     }
-    showCanvasMenu();
     return;
   }
   
@@ -205,6 +267,7 @@ async function initializeMultiplayer() {
       const playerCount = data.players ? data.players.length : 1;
       setRoomInfo(roomId, playerCount);
       isInRoom = true;
+      clearChatMessages();
       updateRoomUI();
       showStatusMessage(`Room joined! Code: ${roomId}`, 'success');
     });
@@ -244,6 +307,11 @@ async function initializeMultiplayer() {
       if (gameMode !== "game") {
         showBootstrapMenu();
       }
+    });
+
+    multiplayerClient.on('chatMessage', (data) => {
+      console.log('Chat message received:', data);
+      displayChatMessage(data.playerId, data.message);
     });
   }
 
@@ -332,6 +400,7 @@ leaveRoomBtn.addEventListener("click", async () => {
   
   isInRoom = false;
   clearRoomInfo();
+  clearChatMessages();
   updateRoomUI();
   showStatusMessage('Left the room. You can now join or create a new room.', 'info');
   
@@ -360,6 +429,19 @@ if (settingsBtn) {
     showSettings();
   });
 }
+
+// Handle send chat button
+sendChatBtn.addEventListener("click", () => {
+  sendChatMessage();
+});
+
+// Handle chat input enter key
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
 
 // Initialize
 document.addEventListener("keydown", handleAllKeyPress);
