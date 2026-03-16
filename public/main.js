@@ -1,5 +1,5 @@
 import { handleKeyPress } from "./inputHandler.js";
-import { loadLevels, drawMenu, handleMenuKeyPress, resetLevelSelection, setRoomInfo, updatePlayerCount, showStatusMessage, clearRoomInfo, getScrollSpeedMultiplier, setScrollSpeedMultiplier, drawSettingsMenu } from "./menu.js";
+import { loadLevels, loadSettings, drawMenu, handleMenuKeyPress, resetLevelSelection, setRoomInfo, updatePlayerCount, showStatusMessage, clearRoomInfo, getScrollSpeedMultiplier, setScrollSpeedMultiplier, drawSettingsMenu } from "./menu.js";
 import { startGame } from "./game.js";
 import { MultiplayerClient } from "./multiplayerClientSocket.js";
 
@@ -34,6 +34,7 @@ let isInRoom = false;
 
 async function initializeGame() {
   await loadLevels();
+  loadSettings();
   resetLevelSelection();
 }
 

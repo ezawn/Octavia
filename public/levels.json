@@ -35,6 +35,12 @@
       "name": "EXTREME",
       "description": "Excruciatingly Difficult",
       "chart": "chart-extreme.json"
+    },
+    {
+      "id": "simult",
+      "name": "Simultaneous",
+      "description": "Stacked notes in one lane",
+      "chart": "simult.json"
     }
   ]
 }

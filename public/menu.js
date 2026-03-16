@@ -11,6 +11,13 @@ export async function loadLevels() {
   return levels;
 }
 
+export function loadSettings() {
+  const savedSpeed = localStorage.getItem('scrollSpeed');
+  if (savedSpeed) {
+    scrollSpeedMultiplier = parseFloat(savedSpeed);
+  }
+}
+
 export function drawMenu(ctx, canvas) {
   //Background
   ctx.fillStyle = "#111";
@@ -169,6 +176,7 @@ export function getScrollSpeedMultiplier() {
 
 export function setScrollSpeedMultiplier(speed) {
   scrollSpeedMultiplier = Math.max(0.5, Math.min(3.0, speed));
+  localStorage.setItem('scrollSpeed', scrollSpeedMultiplier);
 }
 
 export function drawSettingsMenu(ctx, canvas) {
