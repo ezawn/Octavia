@@ -1,4 +1,4 @@
-export const NOTE_SPEED = 0.3;
+export const NOTE_SPEED = 0.15;
 export const HIT_LINE = 500;
 export const SPAWN_INTERVAL = 1000;
 export const DEFAULT_SCROLL_SPEED = 1.0; // Speed multiplier (1.0 = normal, 2.0 = 2x speed)

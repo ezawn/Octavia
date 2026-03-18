@@ -41,6 +41,19 @@
       "name": "Simultaneous",
       "description": "Stacked notes in one lane",
       "chart": "simult.json"
+    },
+    {
+      "id": "empty",
+      "name": "Empty",
+      "description": "No notes at all",
+      "chart": "empty.json"
     }
+      ,
+      {
+        "id": "spam",
+        "name": "Spam",
+        "description": "A barrage of notes",
+        "chart": "spam.json"
+      }
   ]
 }

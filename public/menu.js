@@ -2,7 +2,7 @@ import { COLOURS } from "./constants.js";
 
 let levels = [];
 let selectedLevelIndex = 0;
-let scrollSpeedMultiplier = 1.0; // Current scroll speed (0.5x to 3.0x)
+let scrollSpeedMultiplier = 1.0; // Current scroll speed (1.0x to 6.0x)
 
 export async function loadLevels() {
   const response = await fetch("./levels.json");
@@ -175,7 +175,7 @@ export function getScrollSpeedMultiplier() {
 }
 
 export function setScrollSpeedMultiplier(speed) {
-  scrollSpeedMultiplier = Math.max(0.5, Math.min(3.0, speed));
+  scrollSpeedMultiplier = Math.max(1.0, Math.min(6.0, speed));
   localStorage.setItem('scrollSpeed', scrollSpeedMultiplier);
 }
 
@@ -205,7 +205,7 @@ export function drawSettingsMenu(ctx, canvas) {
   ctx.font = "16px Arial";
   ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
   ctx.textAlign = "center";
-  ctx.fillText("Press LEFT/RIGHT to adjust (0.5x - 3.0x)", canvas.width / 2, 310);
+  ctx.fillText("Press LEFT/RIGHT to adjust (1.0x - 6.0x)", canvas.width / 2, 310);
 
   // Show speed range
   const barWidth = 400;
@@ -218,7 +218,7 @@ export function drawSettingsMenu(ctx, canvas) {
   ctx.fillRect(barX, barY, barWidth, barHeight);
 
   // Draw filled portion
-  const fillPercent = (scrollSpeedMultiplier - 0.5) / 2.5; // 0.5 to 3.0 range
+  const fillPercent = (scrollSpeedMultiplier - 1.0) / 5.0; // 1.0 to 6.0 range
   ctx.fillStyle = "#00FFFF";
   ctx.fillRect(barX, barY, barWidth * fillPercent, barHeight);
 
@@ -231,9 +231,9 @@ export function drawSettingsMenu(ctx, canvas) {
   ctx.font = "12px Arial";
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
   ctx.textAlign = "left";
-  ctx.fillText("0.5x", barX - 30, barY + 20);
+  ctx.fillText("1.0x", barX - 30, barY + 20);
   ctx.textAlign = "right";
-  ctx.fillText("3.0x", barX + barWidth + 30, barY + 20);
+  ctx.fillText("6.0x", barX + barWidth + 30, barY + 20);
 
   // Instructions
   ctx.font = "14px Arial";

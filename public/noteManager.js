@@ -1,11 +1,14 @@
-import { LANES, JUDGEMENTS, NOTE_SPEED } from "./constants.js";
+import { LANES, JUDGEMENTS, NOTE_SPEED, HIT_LINE } from "./constants.js";
 //Creates the note class which represents each note in the game (OOP)
 export class Note {
-  constructor(x, y, lane) {
+  constructor(x, y, lane, chartTime = 0, gameStartTime = 0) {
     this.x = x;
     this.y = y;
     this.lane = lane;
     this.spawnTime = Date.now();
+    this.chartTime = chartTime; // Original time from chart (relative to song start)
+    // Calculate when this note should reach the hit line at 1x speed
+    this.idealHitTime = gameStartTime + chartTime + (HIT_LINE / NOTE_SPEED);
   }
 
   update(noteSpeed, currentTime) {
@@ -27,20 +30,28 @@ export class Note {
     const timingMs = pixelDifference / noteSpeed;
     return timingMs;
   }
-  /*Judges notes based on the difference between hit line and note position
+  /*Judges notes based on the timing of when the key was pressed vs the ideal hit time
+  Uses 1x speed timing regardless of current scroll speed
   Returns the judgement object*/
-  getJudgement(hitLine, noteSpeed) {
-    const timingDifference = this.getTimingDifference(hitLine, noteSpeed);  
-    if (timingDifference <= JUDGEMENTS.GREAT.threshold) {
-      return JUDGEMENTS.GREAT;
-    } else if (timingDifference <= JUDGEMENTS.GOOD.threshold) {
-      return JUDGEMENTS.GOOD;
-    } else if (timingDifference <= JUDGEMENTS.OK.threshold) {
-      return JUDGEMENTS.OK;
-    } else if (timingDifference <= JUDGEMENTS.MEH.threshold) {
-      return JUDGEMENTS.MEH;
+  getJudgement(keyPressTime) {
+    // Compare actual key press time to when note should have been hit at 1x speed
+    const timingDifference = keyPressTime - this.idealHitTime;
+    
+    let judgment;
+    if (Math.abs(timingDifference) <= JUDGEMENTS.GREAT.threshold) {
+      judgment = JUDGEMENTS.GREAT;
+    } else if (Math.abs(timingDifference) <= JUDGEMENTS.GOOD.threshold) {
+      judgment = JUDGEMENTS.GOOD;
+    } else if (Math.abs(timingDifference) <= JUDGEMENTS.OK.threshold) {
+      judgment = JUDGEMENTS.OK;
+    } else if (Math.abs(timingDifference) <= JUDGEMENTS.MEH.threshold) {
+      judgment = JUDGEMENTS.MEH;
+    } else {
+      judgment = JUDGEMENTS.MISS;
     }
-    return JUDGEMENTS.MISS;
+    
+    console.log(`Lane ${this.lane}: ${judgment.label} - Timing: ${timingDifference.toFixed(1)}ms`);
+    return judgment;
   }
 }
 
@@ -80,7 +91,7 @@ function spawnNotePositiveOffset(notes, spawnTimeOffset) {
     
     if (timeSinceStart >= spawnThreshold) {
       const laneX = LANES[nextNote.lane];
-      notes = [...notes, new Note(laneX, 0, nextNote.lane)];
+      notes = [...notes, new Note(laneX, 0, nextNote.lane, nextNote.time, gameStartTime)];
       nextNoteIndex++;
     } else {
       break; // Stop when we hit a note that hasn't spawned yet
@@ -106,7 +117,7 @@ function spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed) {
     
     if (timeSinceStart >= nextNote.time) {
       const laneX = LANES[nextNote.lane];
-      notes = [...notes, new Note(laneX, preCalculatedY, nextNote.lane)];
+      notes = [...notes, new Note(laneX, preCalculatedY, nextNote.lane, nextNote.time, gameStartTime)];
       nextNoteIndex++;
     } else {
       break; // Stop when we hit a note that hasn't spawned yet
@@ -137,7 +148,7 @@ export function spawnNote(notes, spawnTimeOffset = 0, currentNoteSpeed = NOTE_SP
       
       if (timeSinceStart >= nextNote.time) {
         const laneX = LANES[nextNote.lane];
-        notes = [...notes, new Note(laneX, 0, nextNote.lane)];
+        notes = [...notes, new Note(laneX, 0, nextNote.lane, nextNote.time, gameStartTime)];
         nextNoteIndex++;
       } else {
         break; // Stop when we hit a note that hasn't spawned yet
@@ -156,15 +167,16 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
 }
 /*Verifies if note was correctly hit
 If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately
-Judgement is returned based on the timing difference*/
+Judgement is returned based on timing difference between key press and note arrival time*/
 export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
+  const keyPressTime = Date.now();
   const hitIndex = notes.findIndex(note => 
     note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
   );
   if (hitIndex === -1) return { hit: false, notes, judgment: null };
 
   const hitNote = notes[hitIndex];
-  const judgment = hitNote.getJudgement(hitLine, noteSpeed);
+  const judgment = hitNote.getJudgement(hitLine, keyPressTime);
   const newNotes = notes.filter((_, i) => i !== hitIndex);
   return { hit: true, notes: newNotes, judgment };
 }

@@ -43,6 +43,7 @@ export function updateGameState(newNotes, judgment = null) {
   if (judgment) {
     if (judgment.label !== "MISS") {
       gameState.currentCombo += 1;
+      restoreHealthOnHit(judgment);
     } else {
       gameState.currentCombo = 0;
     }
@@ -75,6 +76,23 @@ export function damageHealth(damage) {
     gameState.health = 0;
     gameState.gameOver = true;
     gameState.accuracy = accuracyCalculation();
+  }
+}
+
+export function restoreHealthOnHit(judgment) {
+  if (!judgment || judgment.label === "MISS") return;
+  
+  const healthRestore = {
+    "GREAT": 5,
+    "GOOD": 2,
+    "OK": 1,
+    "MEH": 0.5
+  };
+  
+  const restore = healthRestore[judgment.label] || 0;
+  gameState.health += restore;
+  if (gameState.health > MAX_HEALTH) {
+    gameState.health = MAX_HEALTH;
   }
 }
 
@@ -192,7 +210,7 @@ export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
   resetChart();
   
   // Set scroll speed
-  currentScrollSpeed = Math.max(0.5, Math.min(3.0, scrollSpeedMultiplier)); //Ensure its between 0.5 and 3.0
+  currentScrollSpeed = Math.max(1.0, Math.min(6.0, scrollSpeedMultiplier)); //Ensure its between 1.0 and 6.0
   currentNoteSpeed = NOTE_SPEED * currentScrollSpeed;
   if (currentScrollSpeed !== 1.0) {
     const distanceToHitline = HIT_LINE;

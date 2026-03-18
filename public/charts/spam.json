@@ -1,0 +1,18 @@
+{
+  "notes": [
+    { "time": 800, "lane": 0 },
+    { "time": 810, "lane": 0},
+    { "time": 820, "lane": 0 },
+    { "time": 830, "lane": 0 },
+    { "time": 840, "lane": 0 },
+    { "time": 850, "lane": 0 },
+    { "time": 860, "lane": 0 },
+    { "time": 870, "lane": 0 },
+    { "time": 880, "lane": 0 },
+    { "time": 890, "lane": 0 },
+    { "time": 900, "lane": 0 },
+    { "time": 910, "lane": 0 },
+    { "time": 920, "lane": 0 },
+    { "time": 930, "lane": 0 }
+  ]
+}

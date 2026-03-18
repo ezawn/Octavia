@@ -104,7 +104,10 @@ function displayChatMessage(playerId, message) {
 // Send a chat message
 function sendChatMessage() {
   const message = chatInput.value.trim();
-  if (!message) return;
+  if (!message) {
+    alert("Please enter a message before sending.");
+    return;
+  }
   
   if (multiplayerClient && multiplayerClient.isConnected) {
     multiplayerClient.sendChat(message);
@@ -218,7 +221,7 @@ function handleAllKeyPress(e) {
       startGameWithChart();
     }
   } else if (gameMode === "settings") {
-    // Handle scroll speed adjustment
+    // Handle scroll speed adjustment (can decrease but won't go below 1.0x)
     const step = 0.1;
     if (e.key === "ArrowLeft") {
       e.preventDefault();

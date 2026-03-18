@@ -204,7 +204,7 @@ io.on("connection", (socket) => {
   socket.on("sendChat", (data) => {
     try {
       if (roomId && rooms.has(roomId)) {
-        broadcastToRoom(roomId, "chatMessage", {
+        socket.to(roomId).emit("chatMessage", {
           playerId: playerId,
           message: data.message,
           timestamp: Date.now()
