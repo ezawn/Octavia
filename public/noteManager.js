@@ -1,4 +1,4 @@
-import { LANES, JUDGEMENTS, NOTE_SPEED, HIT_LINE } from "./constants.js";
+import { LANES, JUDGEMENTS, NOTE_SPEED, HIT_LINE, HIT_THRESHOLD } from "./constants.js";
 //Creates the note class which represents each note in the game (OOP)
 export class Note {
   constructor(x, y, lane, chartTime = 0, gameStartTime = 0) {
@@ -6,9 +6,8 @@ export class Note {
     this.y = y;
     this.lane = lane;
     this.spawnTime = Date.now();
-    this.chartTime = chartTime; // Original time from chart (relative to song start)
-    // Calculate when this note should reach the hit line at 1x speed
-    this.idealHitTime = gameStartTime + chartTime + (HIT_LINE / NOTE_SPEED);
+    this.chartTime = chartTime; //The time since chart start
+    this.idealHitTime = gameStartTime + chartTime + (HIT_LINE / NOTE_SPEED); //The time where note should hit the line
   }
 
   update(noteSpeed, currentTime) {
@@ -20,21 +19,11 @@ export class Note {
   isOffScreen(canvasHeight) {
     return this.y >= canvasHeight + 50;
   }
-
-  isInHitRange(hitLine, hitThreshold) {
-    return Math.abs(this.y - hitLine) < hitThreshold;
-  }
-  //Calculates the distance in ms between the note and the hit line
-  getTimingDifference(hitLine, noteSpeed) {
-    const pixelDifference = Math.abs(this.y - hitLine);
-    const timingMs = pixelDifference / noteSpeed;
-    return timingMs;
-  }
   /*Judges notes based on the timing of when the key was pressed vs the ideal hit time
-  Uses 1x speed timing regardless of current scroll speed
-  Returns the judgement object*/
+  Uses 1x speed timing regardless of to prevent any errors with timings since speed should keep the hit time consistent
+  Returns the judgement*/
   getJudgement(keyPressTime) {
-    // Compare actual key press time to when note should have been hit at 1x speed
+    //Find the difference in ms between the ideal time and actual time of input
     const timingDifference = keyPressTime - this.idealHitTime;
     
     let judgment;
@@ -53,7 +42,12 @@ export class Note {
     console.log(`Lane ${this.lane}: ${judgment.label} - Timing: ${timingDifference.toFixed(1)}ms`);
     return judgment;
   }
+
+  isInHitRange(hitLine, hitThreshold) {
+    return Math.abs(this.y - hitLine) < hitThreshold;
+  }
 }
+
 
 let chartData = null;
 let nextNoteIndex = 0;
@@ -165,18 +159,21 @@ export function updateNotes(notes, noteSpeed, canvasHeight) {
     .map(note => note.update(noteSpeed, currentTime))
     .filter(note => !note.isOffScreen(canvasHeight));
 }
-/*Verifies if note was correctly hit
-If the time that the note was hit isInHitRange and the lane is correct, note is scored appropriately
-Judgement is returned based on timing difference between key press and note arrival time*/
-export function checkHit(notes, hitLine, hitThreshold, laneX, noteSpeed) {
+/*Verifies if note was correctly hit by checking if it's in hit range and timing threshold
+Only allows hits on notes within hit range of the hit line
+Judgement is returned based on timing difference between key press and ideal hit time*/
+export function checkHit(notes, laneX) {
   const keyPressTime = Date.now();
-  const hitIndex = notes.findIndex(note => 
-    note.x === laneX && note.isInHitRange(hitLine, hitThreshold)
-  );
+  const hitIndex = notes.findIndex(note => note.x === laneX);
   if (hitIndex === -1) return { hit: false, notes, judgment: null };
 
   const hitNote = notes[hitIndex];
-  const judgment = hitNote.getJudgement(hitLine, keyPressTime);
+  // Check if note is in hit range before allowing the hit
+  if (!hitNote.isInHitRange(HIT_LINE, HIT_THRESHOLD)) {
+    return { hit: false, notes, judgment: null };
+  }
+  
+  const judgment = hitNote.getJudgement(keyPressTime);
   const newNotes = notes.filter((_, i) => i !== hitIndex);
   return { hit: true, notes: newNotes, judgment };
 }
@@ -228,4 +225,25 @@ export function resetJudgementCounter(){
   judgementCounter.OK = 0;
   judgementCounter.MEH = 0;
   judgementCounter.MISS = 0;
+}
+
+/*Checks if the first note of the chart has passed the hit line
+Returns true only if the first note has spawned and passed the hit line threshold
+This prevents false misses before the song actually starts with notes*/
+export function hasFirstNotePassedHitLine() {
+  if (!chartData || chartData.notes.length === 0) {
+    return true; // No chart or no notes, allow misses
+  }
+  
+  // If no notes have spawned yet, first note hasn't passed
+  if (nextNoteIndex === 0) {
+    return false;
+  }
+  
+  const timeSinceStart = Date.now() - gameStartTime;
+  const firstNoteTime = chartData.notes[0].time;
+  const timeToReachHitLine = HIT_LINE / NOTE_SPEED;
+  const firstNotePassedTime = firstNoteTime + timeToReachHitLine + 50; // +50ms buffer
+  
+  return timeSinceStart >= firstNotePassedTime;
 }

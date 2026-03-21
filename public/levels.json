@@ -55,5 +55,12 @@
         "description": "A barrage of notes",
         "chart": "spam.json"
       }
+      ,
+      {
+        "id": "loooooooooong",
+        "name": "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG",
+        "description": "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG",
+        "chart": "loooooooooong.json"
+      }
   ]
 }

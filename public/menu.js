@@ -4,6 +4,22 @@ let levels = [];
 let selectedLevelIndex = 0;
 let scrollSpeedMultiplier = 1.0; // Current scroll speed (1.0x to 6.0x)
 
+// Truncate text to fit within button width with ellipsis
+function truncateText(ctx, text, maxWidth) {
+  const ellipsis = "...";
+  const ellipsisWidth = ctx.measureText(ellipsis).width;
+  
+  if (ctx.measureText(text).width <= maxWidth) {
+    return text;
+  }
+  
+  let truncated = text;
+  while (ctx.measureText(truncated + ellipsis).width > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated + ellipsis;
+}
+
 export async function loadLevels() {
   const response = await fetch("./levels.json");
   const data = await response.json();
@@ -70,11 +86,13 @@ export function drawMenu(ctx, canvas) {
     ctx.fillStyle = isSelected ? "#000" : "white";
     ctx.font = "bold 20px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(level.name, canvas.width / 2, y + 30);
+    const truncatedName = truncateText(ctx, level.name, 280);
+    ctx.fillText(truncatedName, canvas.width / 2, y + 30);
 
     ctx.font = "14px Arial";
     ctx.fillStyle = isSelected ? "rgba(0, 0, 0, 0.7)" : "rgba(255, 255, 255, 0.6)";
-    ctx.fillText(level.description, canvas.width / 2, y + 55);
+    const truncatedDesc = truncateText(ctx, level.description, 280);
+    ctx.fillText(truncatedDesc, canvas.width / 2, y + 55);
   });
 
   //Display instructions

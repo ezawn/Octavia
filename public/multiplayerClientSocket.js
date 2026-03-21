@@ -62,9 +62,7 @@ export class MultiplayerClient {
     });
   }
 
-  /**
-   * Setup message handler for server events
-   */
+  //message handler for different events
   setupMessageHandler() {
     // Player joined room
     this.socket.on('roomJoined', (data) => {
@@ -72,41 +70,41 @@ export class MultiplayerClient {
       console.log(`Joined room: ${this.roomId}`);
       this.triggerCallback('roomJoined', data);
     });
-    // Another player joined
+    // Other player joined
     this.socket.on('playerJoined', (data) => {
       console.log(`${data.playerId} joined the room`);
       this.triggerCallback('playerJoined', data);
     });
 
-    // Player left room
+    //A player leaves room
     this.socket.on('playerLeft', (data) => {
       console.log(`${data.playerId} left the room`);
       this.otherPlayers.delete(data.playerId);
       this.triggerCallback('playerLeft', data);
     });
 
-    // Game starting
+    //Game starts
     this.socket.on('startGame', (data) => {
       console.log('Game starting with chart:', data.chartPath);
       this.triggerCallback('startGame', data);
     });
-    // Real-time player update
+    // UPdates gamestate
     this.socket.on('playerUpdate', (data) => {
       this.otherPlayers.set(data.playerId, data.gameState);
       this.triggerCallback('playerUpdate', data);
     });
 
-    // Game finished
+    //Finish chart
     this.socket.on('gameFinished', (data) => {
       console.log(`${data.playerId} finished! Score: ${data.finalScore}, Accuracy: ${data.accuracy.toFixed(2)}%`);
       this.triggerCallback('gameFinished', data);
     });
-    // Chat message received
+    //Receive a message
     this.socket.on('chatMessage', (data) => {
       console.log(`${data.playerId}: ${data.message}`);
       this.triggerCallback('chatMessage', data);
     });
-    // Error from server
+    //Error
     this.socket.on('error', (data) => {
       console.error('Server error:', data);
       if (data.message) {
@@ -115,15 +113,12 @@ export class MultiplayerClient {
     });
   }
 
-  /**
-   * Join a room (create new or join existing)
-   */
+  //Join a room, or create it if it doesn;t exist
   joinRoom(roomId = null) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
       return;
     }
-
     this.socket.emit('joinRoom', {
       playerId: this.playerId,
       roomId: roomId
@@ -132,9 +127,7 @@ export class MultiplayerClient {
     console.log('[SENT] joinRoom event');
   }
 
-  /**
-   * Select a chart and start the game
-   */
+  //Pick a chart, start the game
   selectChart(chartPath) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');

@@ -20,9 +20,11 @@ let gameState = {
 };
 window.gameState=gameState;
 let gameLoopRunning = false;
-let currentScrollSpeed = 1.0; // Speed multiplier
-let currentNoteSpeed = NOTE_SPEED; // Actual pixels per ms
+let currentScrollSpeed = 1.0; // Multiply speed from constants.js
+let currentNoteSpeed = NOTE_SPEED; // The movement speed of notes which is adjusted to scroll speed
 let spawnTimeOffset = 0; // Milliseconds to offset spawn times
+let lastGameStateUpdateTime = 0; // Track last time gamestate was logged/sent. Measured in ms
+const GAMESTATE_UPDATE_INTERVAL = 1000; // Log gamestate every second
 
 export function getGameState() {
   return gameState;
@@ -69,7 +71,7 @@ export function updateGameState(newNotes, judgment = null) {
     gameState.judgmentDisplayTime = Date.now();
   }
 }
-
+//Reduce health on miss before checking gameOVer
 export function damageHealth(damage) {
   gameState.health -= damage;
   if (gameState.health <= 0) {
@@ -78,7 +80,7 @@ export function damageHealth(damage) {
     gameState.accuracy = accuracyCalculation();
   }
 }
-
+//Heal based on judgement
 export function restoreHealthOnHit(judgment) {
   if (!judgment || judgment.label === "MISS") return;
   
@@ -103,11 +105,11 @@ export function calculateNoteScore(baseScore, currentCombo, maxCombo) {
   return baseScore * (1 + comboRatio);//Dont round, return float so score = exactly 1m
 }
 
-/*Calculates the maximum raw score achievable with perfect hits on all notes
-Assumes all notes are hit with "GREAT"*/
+/*Calculate max possible score
+Does this by simulating a perfect playthrough and summing the score*/
 export function calculateMaxRawScore(noteCount) {
   let maxScore = 0;
-  const greatbaseScore = 300;//Assuming all perfect hits are GREAT
+  const greatbaseScore = 300; //Score for perfect timing
   
   for (let i = 1; i <= noteCount; i++) {
     //At full combo, each note sees the maximum combo ratio (i / noteCount)
@@ -209,20 +211,20 @@ export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
   await loadChart(chartPath);
   resetChart();
   
-  // Set scroll speed
-  currentScrollSpeed = Math.max(1.0, Math.min(6.0, scrollSpeedMultiplier)); //Ensure its between 1.0 and 6.0
+  //Scroll speed is set
+  currentScrollSpeed = Math.max(1.0, Math.min(6.0, scrollSpeedMultiplier)); //Only between 1-6
   currentNoteSpeed = NOTE_SPEED * currentScrollSpeed;
   if (currentScrollSpeed !== 1.0) {
     const distanceToHitline = HIT_LINE;
     const timeDifference = distanceToHitline * Math.abs(1 / NOTE_SPEED - 1 / currentNoteSpeed);
-    // Faster speeds: spawn later (+offset) so notes have time to reach hitline
-    // Slower speeds: spawn at normal time but pre-positioned (-offset)
+    // Faster speeds: spawn later so notes take longer to reach the hit line
+    // Slower speeds: spawn earlier so notes tkae less time to reach hit line
     spawnTimeOffset = currentScrollSpeed > 1.0 ? timeDifference : -timeDifference;
   } else {
     spawnTimeOffset = 0;
   }
   
-  //Total notes, maximum raw score before normalization
+  //Find the total notes in the chart, used later
   gameState.noteCount = getChartNoteCount();
   gameState.maxRawScore = calculateMaxRawScore(gameState.noteCount);
   
@@ -230,7 +232,7 @@ export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
   gameLoop();
 }
 /*Calculates accuracy of player at that point in time
-Copied formula from osu!mania for accuracy calculation*/
+Copied formula from osu!mania website*/
 export function accuracyCalculation() {
   const judgementCounter = getJudgementCounter();
   const numerator=300*(judgementCounter.GREAT)+200*judgementCounter.GOOD+100*judgementCounter.OK+50*judgementCounter.MEH

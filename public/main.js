@@ -202,6 +202,13 @@ function handleAllKeyPress(e) {
 
   // ESC from multiplayer menu: go back to bootstrap menu
   if (e.key === "Escape" && gameMode === "multiplayer-menu") {
+    // If in a room, formally leave before going back
+    if (isInRoom && multiplayerClient && multiplayerClient.isConnectedToServer()) {
+      multiplayerClient.leaveRoom();
+      isInRoom = false;
+      clearRoomInfo();
+      clearChatMessages();
+    }
     showBootstrapMenu();
     return;
   }
@@ -263,7 +270,8 @@ async function initializeMultiplayer() {
   isConnectingToMultiplayer = true;
 
   if (!multiplayerClient) {
-    multiplayerClient = new MultiplayerClient('ws://localhost:3000');   
+    multiplayerClient = new MultiplayerClient('ws://localhost:3000');
+    window.multiplayerClient = multiplayerClient; // Expose for testing/debugging
     // Setup event listeners
     multiplayerClient.on('roomJoined', (data) => {
       console.log('Room joined successfully:', data);
