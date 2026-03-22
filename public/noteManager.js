@@ -49,6 +49,7 @@ export class Note {
 }
 
 
+
 let chartData = null;
 let nextNoteIndex = 0;
 let gameStartTime = 0;
@@ -78,7 +79,7 @@ function spawnNotePositiveOffset(notes, spawnTimeOffset) {
   
   const timeSinceStart = Date.now() - gameStartTime;
   
-  // Spawn all notes whose time has passed (allow multiple per frame)
+  //If spawnTimeOffset is +, notes spawn later. Gives more time to fall
   while (nextNoteIndex < chartData.notes.length) {
     const nextNote = chartData.notes[nextNoteIndex];
     const spawnThreshold = nextNote.time + spawnTimeOffset;
@@ -88,33 +89,7 @@ function spawnNotePositiveOffset(notes, spawnTimeOffset) {
       notes = [...notes, new Note(laneX, 0, nextNote.lane, nextNote.time, gameStartTime)];
       nextNoteIndex++;
     } else {
-      break; // Stop when we hit a note that hasn't spawned yet
-    }
-  }
-  
-  return notes;
-}
-
-/*Spawns notes for slower speeds: spawn at normal time but pre-positioned lower on screen
-This compensates for the slower fall speed by starting the note further down*/
-function spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed) {
-  if (!chartData) {
-    return notes;
-  }
-  
-  const timeSinceStart = Date.now() - gameStartTime;
-  const preCalculatedY = Math.abs(spawnTimeOffset) * currentNoteSpeed;
-  
-  // Spawn all notes whose time has passed (allow multiple per frame)
-  while (nextNoteIndex < chartData.notes.length) {
-    const nextNote = chartData.notes[nextNoteIndex];
-    
-    if (timeSinceStart >= nextNote.time) {
-      const laneX = LANES[nextNote.lane];
-      notes = [...notes, new Note(laneX, preCalculatedY, nextNote.lane, nextNote.time, gameStartTime)];
-      nextNoteIndex++;
-    } else {
-      break; // Stop when we hit a note that hasn't spawned yet
+      break; //If note hasn't reached the time to spawn, stop checking
     }
   }
   
@@ -122,12 +97,10 @@ function spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed) {
 }
 
 /*Spawns notes based on the chart data and the elapsed time since the game started
-Routes to appropriate handler based on offset sign*/
+Handles positive offset (faster speeds) and normal spawn*/
 export function spawnNote(notes, spawnTimeOffset = 0, currentNoteSpeed = NOTE_SPEED) {
   if (spawnTimeOffset > 0) {
     return spawnNotePositiveOffset(notes, spawnTimeOffset);
-  } else if (spawnTimeOffset < 0) {
-    return spawnNoteNegativeOffset(notes, spawnTimeOffset, currentNoteSpeed);
   } else {
     // Normal spawn at 1x speed
     if (!chartData) {

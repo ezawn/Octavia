@@ -10,8 +10,7 @@ export function clear(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 /*fillText appears in most functions
-The fillText method takes the parameters the text to be displayed, the x and y coordinates and the max width
-the max width is optional*/
+The fillText method takes the parameters the text to be displayed, the x and y coordinates and the max width*/
 export function drawLanes(ctx, canvas, hitLine) {
     LANES.forEach((laneX, i) => {
         const laneLeft = laneX - LANE_WIDTH / 2;
@@ -66,7 +65,7 @@ export function drawHealth(ctx, health, maxHealth, colour, canvas) {
 }
 
 export function drawCombo(ctx, combo, colour, canvas) {
-    if (combo === 0) return; //Don't display combo when it's 0
+    if (combo === 0) return; //Don't display combo when it's 0. Makes it clearer
     
     ctx.fillStyle = colour;
     ctx.font = "bold 32px Arial";
@@ -79,7 +78,7 @@ export function drawJudgment(ctx, canvas, judgment, displayTime) {
     
     const now = Date.now();
     const elapsed = now - displayTime;
-    const displayDuration = 500; //Show judgment for 500ms
+    const displayDuration = 500; //Judgement appears for 500ms
     
     if (elapsed > displayDuration) return;
     
@@ -102,6 +101,7 @@ export function drawJudgment(ctx, canvas, judgment, displayTime) {
     ctx.globalAlpha = 1.0;
 }
 
+//End of game screen
 export function drawLevelComplete(ctx, canvas, score) {
     //Semi-transparent overlay
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -156,7 +156,7 @@ export function drawLevelComplete(ctx, canvas, score) {
     ctx.fillText(`MEH: ${mehs}`, 100, canvas.height / 2 + 240);
     ctx.fillText(`MISS: ${misses}`, 100, canvas.height / 2 + 270);
 }
-
+//Gameover screen
 export function drawGameOver(ctx, canvas, score) {
     //Semi-transparent overlay
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -168,7 +168,7 @@ export function drawGameOver(ctx, canvas, score) {
     ctx.font = "32px Arial";
     ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
     
-    //Back button
+    //Message showing the player can return by pressing ESC
     ctx.font = "18px Arial";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.fillText("Press ESC to return to menu", canvas.width / 2, canvas.height / 2 + 80);
