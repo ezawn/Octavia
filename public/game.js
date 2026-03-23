@@ -20,10 +20,10 @@ let gameState = {
 };
 window.gameState=gameState;
 let gameLoopRunning = false;
-let currentScrollSpeed = 1.0; // Multiply speed from constants.js
-let currentNoteSpeed = NOTE_SPEED; // The movement speed of notes which is adjusted to scroll speed
-let spawnTimeOffset = 0; // Milliseconds to offset spawn times
-let lastGameStateUpdateTime = 0; // Track last time gamestate was logged/sent. Measured in ms
+let currentScrollSpeed = 1.0; //constant.js contains the default speed, mulktiply by this
+let currentNoteSpeed = NOTE_SPEED; //Movement adjusted to scroll speed
+let spawnTimeOffset = 0; //For scroll speed changer.
+let lastGameStateUpdateTime = 0; // Track last time gamestate was logged/sent. Measured in ms.
 const GAMESTATE_UPDATE_INTERVAL = 1000; // Log gamestate every second
 
 export function getGameState() {
@@ -38,7 +38,7 @@ export function isLevelComplete() {
   return gameState.levelComplete;
 }
 
-/*Everytime a note is hit, update gameState
+/*EVerytime a note is hit, update gameState
 Handle score calculations, combos and judgements*/
 export function updateGameState(newNotes, judgment = null) {
   gameState.notes = newNotes;
@@ -80,7 +80,7 @@ export function damageHealth(damage) {
     gameState.accuracy = accuracyCalculation();
   }
 }
-//Heal based on judgement
+//better judgement=better heal
 export function restoreHealthOnHit(judgment) {
   if (!judgment || judgment.label === "MISS") return;
   
@@ -105,8 +105,7 @@ export function calculateNoteScore(baseScore, currentCombo, maxCombo) {
   return baseScore * (1 + comboRatio);//Dont round, return float so score = exactly 1m
 }
 
-/*Calculate max possible score
-Does this by simulating a perfect playthrough and summing the score*/
+//Calc max score possible by simulating a perfect run
 export function calculateMaxRawScore(noteCount) {
   let maxScore = 0;
   const greatbaseScore = 300; //Score for perfect timing
@@ -144,16 +143,15 @@ function update() {
     gameState.currentCombo = 0;//Reset combo on missed notes
   }
   
-  // Update accuracy every frame
+
   gameState.accuracy = accuracyCalculation();
   
-  //Confirms level is complete
+
   if (!gameState.levelComplete && isChartFinished() && gameState.notes.length === 0) {
     gameState.levelComplete = true;
   }
 }
-/*Draws the game state each frame
-Draws notes, lanes etc*/
+//draws various things every frame
 function draw() {
   clear(ctx, canvas);
   drawLanes(ctx, canvas, HIT_LINE);
@@ -171,7 +169,7 @@ function draw() {
     drawGameOver(ctx, canvas, gameState.score);
   }
 }
-//Removes notes when gameOver is true
+//instantly remove notes after gameOVer
 function clearNotes(gameState) {
   if (gameState.gameOver) 
   gameState.notes = [];
@@ -184,7 +182,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
   clearNotes(gameState);
 }
-//When new chart is loaded, reset game data
+//reset data on start
 export function resetGameState() {
   gameState.notes = [];
   gameState.score = 0;
@@ -205,13 +203,13 @@ export function resetGameState() {
   resetJudgementCounter();
   gameLoopRunning = false;
 }
-//Starts the game with the chart that the player selects
+//Start game with chart picked
 export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
   resetGameState();
   await loadChart(chartPath);
   resetChart();
   
-  //Scroll speed is set
+  //scroll speed changer
   currentScrollSpeed = Math.max(1.0, Math.min(6.0, scrollSpeedMultiplier)); //Only between 1-6
   currentNoteSpeed = NOTE_SPEED * currentScrollSpeed;
   if (currentScrollSpeed !== 1.0) {
@@ -219,12 +217,16 @@ export async function startGame(chartPath, scrollSpeedMultiplier = 1.0) {
     const timeDifference = distanceToHitline * Math.abs(1 / NOTE_SPEED - 1 / currentNoteSpeed);
     // Faster speeds: spawn later so notes take longer to reach the hit line
     // Slower speeds: spawn earlier so notes tkae less time to reach hit line
-    spawnTimeOffset = currentScrollSpeed > 1.0 ? timeDifference : -timeDifference;
-  } else {
+    if (currentScrollSpeed > 1.0) {
+    spawnTimeOffset = timeDifference;
+} else {
+    spawnTimeOffset = -timeDifference;
+}
+  else {
     spawnTimeOffset = 0;
   }
   
-  //Find the total notes in the chart, used later
+  //Find the total notes in the chart, used for calculations elsewhere
   gameState.noteCount = getChartNoteCount();
   gameState.maxRawScore = calculateMaxRawScore(gameState.noteCount);
   
