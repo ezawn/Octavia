@@ -1,5 +1,5 @@
 import { LANES, JUDGEMENTS, NOTE_SPEED, HIT_LINE, HIT_THRESHOLD } from "./constants.js";
-//Creates the note class which represents each note in the game (OOP)
+//Class represents notes in game
 export class Note {
   constructor(x, y, lane, chartTime = 0, gameStartTime = 0) {
     this.x = x;
@@ -9,7 +9,7 @@ export class Note {
     this.chartTime = chartTime; //The time since chart start
     this.idealHitTime = gameStartTime + chartTime + (HIT_LINE / NOTE_SPEED); //The time where note should hit the line
   }
-
+//mvoe note down the page
   update(noteSpeed, currentTime) {
     const timeSinceSpawn = currentTime - this.spawnTime;
     this.y = timeSinceSpawn * noteSpeed; //Position = time * speed
@@ -23,7 +23,7 @@ export class Note {
   Uses 1x speed timing regardless of to prevent any errors with timings since speed should keep the hit time consistent
   Returns the judgement*/
   getJudgement(keyPressTime) {
-    //Find the difference in ms between the ideal time and actual time of input
+    //timingDifference is the time between ideal hit time and actual hit time
     const timingDifference = keyPressTime - this.idealHitTime;
     
     let judgment;
@@ -89,7 +89,7 @@ function spawnNotePositiveOffset(notes, spawnTimeOffset) {
       notes = [...notes, new Note(laneX, 0, nextNote.lane, nextNote.time, gameStartTime)];
       nextNoteIndex++;
     } else {
-      break; //If note hasn't reached the time to spawn, stop checking
+      break; //stop checking if note hasnt reached spawn time since all notes after will spawn after
     }
   }
   
@@ -109,7 +109,7 @@ export function spawnNote(notes, spawnTimeOffset = 0, currentNoteSpeed = NOTE_SP
     
     const timeSinceStart = Date.now() - gameStartTime;
     
-    // Spawn all notes whose time has passed (allow multiple per frame)
+    // Spawn all notes whose time has passed
     while (nextNoteIndex < chartData.notes.length) {
       const nextNote = chartData.notes[nextNoteIndex];
       
@@ -118,7 +118,7 @@ export function spawnNote(notes, spawnTimeOffset = 0, currentNoteSpeed = NOTE_SP
         notes = [...notes, new Note(laneX, 0, nextNote.lane, nextNote.time, gameStartTime)];
         nextNoteIndex++;
       } else {
-        break; // Stop when we hit a note that hasn't spawned yet
+        break; //Stop on note that hasnt spawned
       }
     }
     
@@ -150,11 +150,11 @@ export function checkHit(notes, laneX) {
   const newNotes = notes.filter((_, i) => i !== hitIndex);
   return { hit: true, notes: newNotes, judgment };
 }
-//Confirms whether or not the chart has spawned all notes
+//verify chart is done
 export function isChartFinished() {
   return chartData && nextNoteIndex >= chartData.notes.length;
 }
-//Calculates the number of notes in the chart
+//find total notes in chart
 export function getChartNoteCount() {
   if (!chartData || !chartData.notes) {
     return 0;
