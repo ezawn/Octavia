@@ -1,9 +1,8 @@
-/**
- * Client-side Socket.IO handler for Octavia multiplayer
- * Manages communication with the server using Socket.IO
- * 
- * Note: Socket.IO client is loaded globally from CDN in index.html
- */
+//manage communication with server
+
+
+
+
 
 export class MultiplayerClient {
   constructor(serverUrl = 'http://localhost:3000') {
@@ -16,9 +15,7 @@ export class MultiplayerClient {
     this.isConnected = false;
   }
 
-  /**
-   * Connect to the Socket.IO server
-   */
+  //connect to server
   connect(playerId) {
     return new Promise((resolve, reject) => {
       try {
