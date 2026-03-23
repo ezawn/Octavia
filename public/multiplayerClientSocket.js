@@ -22,9 +22,9 @@ export class MultiplayerClient {
   connect(playerId) {
     return new Promise((resolve, reject) => {
       try {
-        // Check if io is available globally (loaded from CDN)
+        //ensure io works before proceeding
         if (typeof window.io === 'undefined') {
-          reject(new Error('Socket.IO client not loaded. Check that script tag is in index.html'));
+          reject(new Error('Socket.io not functioning'));
           return;
         }
 
@@ -70,13 +70,13 @@ export class MultiplayerClient {
       console.log(`Joined room: ${this.roomId}`);
       this.triggerCallback('roomJoined', data);
     });
-    // Other player joined
+    //player joins
     this.socket.on('playerJoined', (data) => {
       console.log(`${data.playerId} joined the room`);
       this.triggerCallback('playerJoined', data);
     });
 
-    //A player leaves room
+    //player leaves room
     this.socket.on('playerLeft', (data) => {
       console.log(`${data.playerId} left the room`);
       this.otherPlayers.delete(data.playerId);
@@ -113,7 +113,7 @@ export class MultiplayerClient {
     });
   }
 
-  //Join a room, or create it if it doesn;t exist
+  //join a room, or create it if it doesn;t exist
   joinRoom(roomId = null) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
@@ -148,6 +148,7 @@ export class MultiplayerClient {
       return;
     }
 
+    
     this.socket.emit('updateGameState', {
       gameState: gameState
     });
@@ -183,7 +184,7 @@ export class MultiplayerClient {
     console.log('[SENT] leaveRoom event');
   }
 
-  //Send chat message
+  //send msg
   sendChat(message) {
     if (!this.isConnected) {
       console.error('[ERROR] Not connected to server');
@@ -211,7 +212,7 @@ export class MultiplayerClient {
     }
   }
 
-//Event callback
+//event callback, handles various events
   on(event, callback) {
     if (!this.callbacks.has(event)) {
       this.callbacks.set(event, []);
@@ -219,9 +220,7 @@ export class MultiplayerClient {
     this.callbacks.get(event).push(callback);
   }
 
-  /**
-   * Trigger event callbacks
-   */
+  //trigger event callback
   triggerCallback(event, data = null) {
     if (this.callbacks.has(event)) {
       this.callbacks.get(event).forEach((callback) => {
@@ -234,37 +233,27 @@ export class MultiplayerClient {
     }
   }
 
-  /**
-   * Get other players' game states
-   */
+  //get others gamestates
   getOtherPlayers() {
     return this.otherPlayers;
   }
 
-  /**
-   * Get a specific player's game state
-   */
+  //get a players gamestate
   getPlayerState(playerId) {
     return this.otherPlayers.get(playerId);
   }
 
-  /**
-   * Get current room ID
-   */
+  //get room id
   getRoomId() {
     return this.roomId;
   }
 
-  /**
-   * Get current player ID
-   */
+  //get id
   getPlayerId() {
     return this.playerId;
   }
 
-  /**
-   * Check if connected
-   */
+  //confirm connection
   isConnectedToServer() {
     return this.isConnected && this.socket && this.socket.connected;
   }
