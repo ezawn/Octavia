@@ -24,7 +24,7 @@ const sendChatBtn = document.getElementById("sendChatBtn");
 const chatInputContainer = document.getElementById("chatInputContainer");
 const chatDivider = document.getElementById("chatDivider");
 
-let gameMode = "bootstrap-menu"; // bootstrap-menu, multiplayer-menu, canvas-menu, settings, or game
+let gameMode = "bootstrap-menu"; //one of: bootstrap-menu, multiplayer-menu, canvas-menu, settings, game
 let currentChartPath = null;
 let menuLoopRunning = false;
 let multiplayerClient = null;
@@ -38,10 +38,10 @@ async function initializeGame() {
   resetLevelSelection();
 }
 
-//Update UI based on room state
+//UI changes based on gamestate
 function updateRoomUI() {
   if (isInRoom) {
-    //If in room show leave and start game buttons, hide join/create
+    //A player already in room cant see the join/create buttons or the roomcode. THey will be able to see leave and start
     leaveRoomBtn.classList.remove("d-none");
     startGameBtn.classList.remove("d-none");
     joinRoomBtn.classList.add("d-none");
@@ -64,7 +64,7 @@ function updateRoomUI() {
   }
 }
 
-// Canvas-based menu loop (used when coming from bootstrap menu)
+//Canvas menu from bootstrap
 function menuLoop() {
   if (!menuLoopRunning) return;
   
@@ -76,7 +76,7 @@ function menuLoop() {
   requestAnimationFrame(menuLoop);
 }
 
-// Display a chat message in the chat container
+//Show chat msg
 function displayChatMessage(playerId, message) {
   const messageDiv = document.createElement("div");
   messageDiv.className = "chat-message";
@@ -86,8 +86,11 @@ function displayChatMessage(playerId, message) {
   
   const playerNameDiv = document.createElement("span");
   playerNameDiv.className = "chat-player-name";
-  playerNameDiv.textContent = isCurrentPlayer ? "You" : playerId;
-  
+if (isCurrentPlayer) {
+  playerNameDiv.textContent = "You";
+} else {
+  playerNameDiv.textContent = playerId;
+}  
   const messageSpan = document.createElement("span");
   messageSpan.textContent = message;
   
@@ -97,11 +100,11 @@ function displayChatMessage(playerId, message) {
   
   chatMessages.appendChild(messageDiv);
   
-  // Auto-scroll to bottom
+  //scroll to bottom
   chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
 }
 
-// Send a chat message
+//send msg
 function sendChatMessage() {
   const message = chatInput.value.trim();
   if (!message) {
@@ -118,12 +121,12 @@ function sendChatMessage() {
   chatInput.focus();
 }
 
-// Clear chat messages
+//remove msgs
 function clearChatMessages() {
   chatMessages.innerHTML = "";
 }
 
-// Show bootstrap menu
+//show bootstrap menu
 function showBootstrapMenu() {
   gameMode = "bootstrap-menu";
   menuLoopRunning = false;
@@ -132,7 +135,7 @@ function showBootstrapMenu() {
   gameContainer.classList.add("d-none");
 }
 
-// Show multiplayer menu
+// show multiplayer menu.
 function showMultiplayerMenu(clearRoom = false) {
   gameMode = "multiplayer-menu";
   menuLoopRunning = false;
@@ -140,12 +143,11 @@ function showMultiplayerMenu(clearRoom = false) {
   multiplayerMenuContainer.classList.remove("d-none");
   gameContainer.classList.add("d-none");
   
-  // Only clear room info if explicitly requested (when going back to main menu)
+  //Clear the room when requested
   if (clearRoom) {
     clearRoomInfo();
     isInRoom = false;
   }
-  
   roomCodeInput.value = "";
   roomCodeInput.focus();
   updateRoomUI();
@@ -161,7 +163,7 @@ function showCanvasMenu() {
   menuLoop();
 }
 
-// Show settings menu
+
 function showSettings() {
   gameMode = "settings";
   menuLoopRunning = true;
@@ -171,9 +173,9 @@ function showSettings() {
   menuLoop();
 }
 
-// Handles game and menu key presses
+//Manage menu key presses
 function handleAllKeyPress(e) {
-  // ESC from game: go back to appropriate menu
+  //escape basically functions as a back button
   if (e.key === "Escape" && gameMode === "game") {
     if (isInRoom) {
       // In multiplayer room, return to lobby without leaving
@@ -189,7 +191,7 @@ function handleAllKeyPress(e) {
     return;
   }
   
-  // ESC from canvas menu: go back to appropriate menu
+  
   if (e.key === "Escape" && gameMode === "canvas-menu") {
     if (isMultiplayer) {
       // Coming back from chart selection, stay in room
@@ -200,9 +202,9 @@ function handleAllKeyPress(e) {
     return;
   }
 
-  // ESC from multiplayer menu: go back to bootstrap menu
+  //esc in multi menu takes you to bootstrap menu
   if (e.key === "Escape" && gameMode === "multiplayer-menu") {
-    // If in a room, formally leave before going back
+    //Leave the room if in a room
     if (isInRoom && multiplayerClient && multiplayerClient.isConnectedToServer()) {
       multiplayerClient.leaveRoom();
       isInRoom = false;
@@ -213,7 +215,7 @@ function handleAllKeyPress(e) {
     return;
   }
 
-  // ESC from settings: go back to bootstrap menu
+
   if (e.key === "Escape" && gameMode === "settings") {
     showBootstrapMenu();
     return;
@@ -244,7 +246,7 @@ function handleAllKeyPress(e) {
   }
 }
 
-// Starts the game with the currently selected chart
+//start with selected chart
 async function startGameWithChart(sendToOthers = true) {
   // If in multiplayer and told to send, notify other players of chart selection
   if (sendToOthers && isMultiplayer && multiplayerClient && multiplayerClient.isConnectedToServer()) {
@@ -261,7 +263,7 @@ async function initializeMultiplayer() {
     return false;
   }
 
-  // If already connected, don't connect again
+  //no need to connect again
   if (multiplayerClient && multiplayerClient.isConnectedToServer()) {
     console.log('Already connected to server');
     return true;
@@ -271,8 +273,7 @@ async function initializeMultiplayer() {
 
   if (!multiplayerClient) {
     multiplayerClient = new MultiplayerClient('ws://localhost:3000');
-    window.multiplayerClient = multiplayerClient; // Expose for testing/debugging
-    // Setup event listeners
+    window.multiplayerClient = multiplayerClient; //for tests
     multiplayerClient.on('roomJoined', (data) => {
       console.log('Room joined successfully:', data);
       const roomId = data.roomId;
@@ -301,11 +302,11 @@ async function initializeMultiplayer() {
 
     multiplayerClient.on('startGame', (data) => {
       console.log('Game starting with chart:', data.chartPath);
-      // Start the game with the selected chart
+      //start game with selected chart.
       currentChartPath = data.chartPath;
       
 
-      // Show game container and hide multiplayer menu
+      //Show game, hide menu
       multiplayerMenuContainer.classList.add("d-none");
       gameContainer.classList.remove("d-none");
       gameMode = "game";
@@ -329,7 +330,7 @@ async function initializeMultiplayer() {
 
   try {
     // Generate a unique player ID
-    const playerId = `Player-${Date.now()}`;
+    const playerId = `Player-${Date.now()}`; //maybe not unique if 2 players happent o connect at the exact same milisecond
     await multiplayerClient.connect(playerId);
     isConnectingToMultiplayer = false;
     return true;
@@ -342,7 +343,7 @@ async function initializeMultiplayer() {
   }
 }
 
-// Handle join room button
+//join button
 joinRoomBtn.addEventListener("click", async () => {
   if (isInRoom) {
     showStatusMessage('You are already in a room. Click "LEAVE ROOM" first.', 'warning');
@@ -354,7 +355,7 @@ joinRoomBtn.addEventListener("click", async () => {
     return;
   }
 
-  // Disable buttons during connection
+  //buttons cant be clicked during connection
   joinRoomBtn.disabled = true;
   createRoomBtn.disabled = true;
 
@@ -364,12 +365,12 @@ joinRoomBtn.addEventListener("click", async () => {
     multiplayerClient.joinRoom(roomCode);
     isMultiplayer = true;
   }
-  // Re-enable buttons
+  //enable buttons
   joinRoomBtn.disabled = false;
   createRoomBtn.disabled = false;
 });
 
-// Handle create room button
+//create room btn
 createRoomBtn.addEventListener("click", async () => {
   if (isInRoom) {
     showStatusMessage('You are already in a room. Click "LEAVE ROOM" first.', 'warning');
@@ -430,24 +431,24 @@ playBtn.addEventListener("click", () => {
   showCanvasMenu();
 });
 
-// Handle multiplayer button click
+//calls function when clicking multi button
 multiplayerBtn.addEventListener("click", () => {
   showMultiplayerMenu(true);
 });
 
-// Handle settings button click
+// clicking settings button
 if (settingsBtn) {
   settingsBtn.addEventListener("click", () => {
     showSettings();
   });
 }
 
-// Handle send chat button
+//chat button
 sendChatBtn.addEventListener("click", () => {
   sendChatMessage();
 });
 
-// Handle chat input enter key
+//chat enter key sends msg
 chatInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
