@@ -13,24 +13,28 @@ const io = socketIO(server, {
 
 app.use(express.static("public"));
 
-// Store active game rooms
+//contains active rooms
 const rooms = new Map();
 
-// Generate unique room ID
+//Make an ID
 function generateRoomId() {
   return Math.random().toString(36).substring(2, 15);
 }
 
-// Broadcast message to all players in a room
+//Send various events to players
 function broadcastToRoom(roomId, eventName, data) {
   io.to(roomId).emit(eventName, data);
   console.log(`Broadcasted "${eventName}" to room ${roomId}`);
 }
 
-// Get all players in a room
+//get players in room
 function getRoomPlayers(roomId) {
   const room = rooms.get(roomId);
-  return room ? Array.from(room.players.keys()) : [];
+  if (room) {
+    return Array.from(room.players.keys());
+} else {
+    return [];
+}
 }
 
 io.on("connection", (socket) => {
