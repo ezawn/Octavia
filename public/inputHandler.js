@@ -16,7 +16,7 @@ export function handleKeyPress(e) {
   if (!(e.code in KEY_TO_LANE)) return;
 
   const gameState = getGameState();
-  // Don't accept hits after the chart ends or if game is over
+  //disable inputs on chart end
   if (gameState.levelComplete || gameState.gameOver) return;
 
   const lane = KEY_TO_LANE[e.code];
@@ -24,20 +24,19 @@ export function handleKeyPress(e) {
   const { notes } = gameState;
   const result = checkHit(notes, laneX);
 /*On hit, if the judgement is not a miss, update the game state with the new notes and judgement.
-If miss or hit when note is out of range, reduce health and reset combo.
-Only register miss on empty key presses if the first note has already passed the hit line.*/
+If miss or hit when note is out of range, reduce health and reset combo but only if the first note has already been judged
+*/
   if (result.hit && result.judgment !== JUDGEMENTS.MISS) {
     counterIncrease(result.judgment);
     updateGameState(result.notes, result.judgment);
-  } else if (result.hit && result.judgment === JUDGEMENTS.MISS) { //Note removed and judged as MISS
+  } else if (result.hit && result.judgment === JUDGEMENTS.MISS) { //judge as miss
     counterIncrease(JUDGEMENTS.MISS);
     updateGameState(result.notes, JUDGEMENTS.MISS);
     damageHealth(5);
   } else if (hasFirstNotePassedHitLine()) {
-    // Only count as miss if first note has already passed the hit line
+    //Dont consider a miss if the first note hasnt passed the hitline/been hit
     counterIncrease(JUDGEMENTS.MISS);
     updateGameState(result.notes, JUDGEMENTS.MISS);
     damageHealth(5);
   }
-  // If hit: false and first note hasn't passed, do nothing (no miss)
 }   
